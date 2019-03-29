@@ -7,6 +7,7 @@ const app = express();
 const logger = require('./utils/logger')();
 const websocketServer = require('./websocket/websocketserver');
 
+let ready = false;
 
 //** initialize HTTP server on port : ${HttpPort} */
 const httpServer = http.createServer(app);
@@ -21,6 +22,12 @@ httpServer.listen(httpPort, function(){
 
 
 //** initialaize WebSocket server on port : ${WebsocketPort} */
-  websocketServer.start();
+websocketServer.start();
 //** end of WebSocket server initialaization */
 
+setTimeout(() => {ready = true;} , 5000);
+
+
+
+module.exports.ready = () => {return ready};
+module.exports.live = () => {return true};
