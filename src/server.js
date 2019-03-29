@@ -6,14 +6,23 @@ const express = require('express');
 const app = express();
 const logger = require('./utils/logger')();
 const websocketServer = require('./websocket/websocketserver');
+const initDB =  require('./startup/db').initDB;
+const checkConfig =  require('./startup/config');
 
 let ready = false;
+
+
+checkConfig();
+
+//** initialize Database */
+ initDB();
+//** end of Database initialization */
+
 
 //** initialize HTTP server on port : ${HttpPort} */
 const httpServer = http.createServer(app);
 app.use(log4js.connectLogger(logger, { level: logger.level }));
 require('./startup/routes')(app);
-require('./startup/config')();
 const httpPort = config.HttpPort || 3000;
 httpServer.listen(httpPort, function(){
   logger.info(`Http server is listening on http://localhost:${httpPort}`);

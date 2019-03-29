@@ -25,6 +25,7 @@
     "config": "^3.0.1",
     "express": "^4.16.4",
     "log4js": "^4.0.2",
+    "rethinkdb": "^2.3.3",
     "websocket": "^1.0.28"
   },
   "devDependencies": {
