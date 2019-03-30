@@ -3,7 +3,7 @@
   "Port" : 8000,
   "LogLevel" : "info",
   "HttpPort" : "3000",
-  "WebsocketPort" : "8080",
+  "WebsocketPort" : "8000",
   "DBHost" : "localhost",
   "DBPort" : 28015,
   "DBName" : "ipcommunication"

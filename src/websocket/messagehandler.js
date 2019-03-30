@@ -1,26 +1,48 @@
-const host = require('./../utils/application').hostname();
 const logger = require('./../utils/logger')();
 const HandshakeManager = require('./handshakemanager');
-const TransactionHandler = require('./transactionhandler');
+const registerRealtimeMessageFeed = require('./../startup/db').registerRealtimeMessageFeed;
+const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index').messageReceivedFromCore;
+const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
+const publisher = require('./publisher');
 
-module.exports = (connection,request) => {
-
-    return (message) => {
-        
+const handleMessage = (connection, request) =>
+{
+    return (message) =>
+    {
         if (message.type === 'utf8') {
             if (!connection.Authenticated)
             {
-                return HandshakeManager.doHandshake(connection,request,message);
+                return HandshakeManager.doHandshake(connection,request,message,initializeConnection);
             }
             else
             {
-                TransactionHandler.processTransaction(connection,request,message);
+                messageReceivedFromBank(connection.bank , message);
             }
 
         }
         else if (message.type === 'binary') {
-            connection.sendUTF('Invalid Data : Connection Closed By Server');
+            connection.sendUTF('Invalid Format : Connection Closed By Server');
             request.socket.end();
         }
     }
+}
+
+const initializeConnection = (bank, socketConnection) =>
+{
+    try
+    {
+        registerRealtimeMessageFeed(bank + '_in', messageReceivedFromCore, socketConnection);
+        publisher.addConnection(bank , socketConnection);
+    }
+    catch(err)
+    {
+        logger.error(err);
+        setTimeout(() => {
+            initializeConnection(bank , socketConnection);
+        }, 1000);
+    }
+}
+
+module.exports = {
+    handleMessage
 }
