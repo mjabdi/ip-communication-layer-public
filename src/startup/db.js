@@ -69,6 +69,30 @@ const registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
     });
 }
 
+const processAllNeworPendingMessages = (bank ,socketConnection, callback) =>
+{
+    var table = bank + '_in';
+
+    if (!_connection)
+    {
+        logger.fatal('trying to get pending messages but DB is disconnected!');
+        application.shutdown();
+        return;
+    }
+
+    r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+        r.db(config.DBName).table(table).filter(r.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
+            if (err) throw err;
+            logger.info(`'${bank}' : checking for pending messages...`);
+            cursor.each(function (err, row) {
+                if (err) throw err;
+                logger.info(`processing pending message : '${JSON.stringify(row)}'`);
+                callback(socketConnection.Bank, row);
+            });
+          });
+    });
+}
+
 const addNewMessageToQueue = (payload , bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
@@ -96,7 +120,7 @@ const addNewMessageToQueue = (payload , bank) => {
 const markMessageAsPending = (id , bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
-        r.db(config.DBName).table(table).get(id).update({status: "pending"}).run(_connection,(err,result) =>
+        r.db(config.DBName).table(table).get(id).update({status: 'pending'}).run(_connection,(err,result) =>
         {
             if (err) 
             {
@@ -112,7 +136,7 @@ const markMessageAsPending = (id , bank) => {
 const markMessageAsSent = (id , bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
-        r.db(config.DBName).table(table).get(id).update({status: "sent"}).run(_connection,(err,result) =>
+        r.db(config.DBName).table(table).get(id).update({status: 'sent'}).run(_connection,(err,result) =>
         {
             if (err) 
             {
@@ -132,6 +156,7 @@ module.exports = {
     getConnection,
     initDB,
     registerRealtimeMessageFeed,
+    processAllNeworPendingMessages,
     addNewMessageToQueue,
     markMessageAsPending,
     markMessageAsSent

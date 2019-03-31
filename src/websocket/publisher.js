@@ -34,8 +34,17 @@ const addConnection = (bank ,connection) =>
     _socketConnections.put(bank ,connection);
 }
 
+const removeConnection = (bank) =>
+{
+    if (_socketConnections.containsKey(bank))
+    {
+        _socketConnections.remove(bank);
+    }
+}
+
 module.exports = {
     sendMessage,
     sendMessageToAll,
-    addConnection
+    addConnection,
+    removeConnection
 }

@@ -1,6 +1,7 @@
 const logger = require('./../utils/logger')();
 const HandshakeManager = require('./handshakemanager');
 const registerRealtimeMessageFeed = require('./../startup/db').registerRealtimeMessageFeed;
+const processAllNeworPendingMessages = require('./../startup/db').processAllNeworPendingMessages;
 const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index').messageReceivedFromCore;
 const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
 const publisher = require('./publisher');
@@ -31,8 +32,11 @@ const initializeConnection = (bank, socketConnection) =>
 {
     try
     {
-        registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
         publisher.addConnection(bank , socketConnection);
+
+        processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore);
+
+        registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
     }
     catch(err)
     {

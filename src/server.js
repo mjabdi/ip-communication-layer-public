@@ -9,8 +9,9 @@ const websocketServer = require('./websocket/websocketserver');
 const initDB =  require('./startup/db').initDB;
 const checkConfig =  require('./startup/config');
 
-let ready = false;
 
+
+let ready = false;
 
 checkConfig();
 
@@ -34,7 +35,7 @@ httpServer.listen(httpPort, function(){
 websocketServer.start();
 //** end of WebSocket server initialaization */
 
-setTimeout(() => {ready = true;} , 5000);
+ready = true;
 
 
 
