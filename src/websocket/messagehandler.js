@@ -31,7 +31,7 @@ const initializeConnection = (bank, socketConnection) =>
 {
     try
     {
-        registerRealtimeMessageFeed(bank + '_in', messageReceivedFromCore, socketConnection);
+        registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
         publisher.addConnection(bank , socketConnection);
     }
     catch(err)

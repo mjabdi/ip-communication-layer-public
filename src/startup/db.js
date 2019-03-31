@@ -2,6 +2,7 @@ const config = require('config');
 const logger = require('./../utils/logger')();
 const r = require('rethinkdb');
 const application = require('./../utils/application');
+const Message = require('./../models/message');
 
 let _connection;
 
@@ -42,8 +43,10 @@ const getConnection = () =>
     return _connection;
 }
 
-const registerRealtimeMessageFeed = (table ,callback ,socketConnection) =>
+const registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
 {
+    var table = bank + '_in';
+
     if (!_connection)
     {
         logger.fatal('trying to register for changefeed but DB is disconnected!');
@@ -58,17 +61,73 @@ const registerRealtimeMessageFeed = (table ,callback ,socketConnection) =>
             logger.info(' Bank ' + socketConnection.Bank + ' changefeed subscribed.');
             cursor.each(function (err, row) {
               if (err) throw err;
-              callback(socketConnection.Bank, JSON.stringify(row));
+
+              if (row.new_val && !row.old_val)
+                callback(socketConnection.Bank, row.new_val);
             });
           });
     });
 }
 
+const addNewMessageToQueue = (payload , bank) => {
+    return new Promise((resolve, reject) => {
+        var table = bank + '_in';
+        var message = new Message(payload);
+        r.db(config.DBName).table(table).insert(message).run(_connection,(err,result) =>
+        {
+            if (err) 
+            {
+                reject(err);
+            }
+            else{
+                resolve(result.new_val);
+            }
+        });
+    });
+}
+
+const markMessageAsPending = (id , bank) => {
+    return new Promise((resolve, reject) => {
+        var table = bank + '_in';
+        r.db(config.DBName).table(table).get(id).update({status: "pending"}).run(_connection,(err,result) =>
+        {
+            if (err) 
+            {
+                reject(err);
+            }
+            else{
+                resolve(result.new_val);
+            }
+        });
+    });
+}
+
+const markMessageAsSent = (id , bank) => {
+    return new Promise((resolve, reject) => {
+        var table = bank + '_in';
+        r.db(config.DBName).table(table).get(id).update({status: "sent"}).run(_connection,(err,result) =>
+        {
+            if (err) 
+            {
+                reject(err);
+            }
+            else{
+                resolve(result.new_val);
+            }
+        });
+    });
+}
+
+
+
 
 module.exports = {
     getConnection,
     initDB,
-    registerRealtimeMessageFeed
+    registerRealtimeMessageFeed,
+    addNewMessageToQueue,
+    markMessageAsPending,
+    markMessageAsSent
 }
 
 
