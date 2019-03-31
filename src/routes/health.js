@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const server = require('./../server');
 
-router.get('/ready', function (req, res) {
+router.get('/ready', (req, res) => {
  
   if (server.ready())
   {
@@ -16,7 +16,7 @@ router.get('/ready', function (req, res) {
   }
 });
 
-router.get('/live', function (req, res) {
+router.get('/live', (req, res) => {
  
   if (server.live())
   {

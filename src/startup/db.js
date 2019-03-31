@@ -80,7 +80,14 @@ const addNewMessageToQueue = (payload , bank) => {
                 reject(err);
             }
             else{
-                resolve(result.new_val);
+                if (result.errors > 0)
+                {
+                    reject(result);
+                }
+                else
+                {
+                    resolve({id : result.generated_keys[0]});
+                }
             }
         });
     });
