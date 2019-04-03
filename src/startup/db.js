@@ -89,6 +89,7 @@ const processAllNeworPendingMessages = (bank ,socketConnection, callback) =>
                 logger.info(`processing pending message : '${JSON.stringify(row)}'`);
                 callback(socketConnection.Bank, row);
             });
+            logger.info(`'${bank}' : checking for pending messages done.`);
           });
     });
 }

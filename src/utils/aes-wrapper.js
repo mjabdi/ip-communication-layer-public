@@ -18,7 +18,6 @@ aesWrapper.generateIv = () => {
 // separate initialization vector from message
 aesWrapper.separateVectorFromData = (data) =>  {
     console.log(data);
-    console.log('data');
     var iv = data.slice(-24);
     var message = data.substring(0, data.length - 24)
 
@@ -37,11 +36,11 @@ aesWrapper.encrypt = (key, iv, text) => {
     return encrypted;
 };
 
-aesWrapper.decrypt = (key, text) => {
+aesWrapper.decrypt = (key, iv , text) => {
     let dec = '';
-    let data = aesWrapper.separateVectorFromData(text);
-    let cipher = crypto.createDecipheriv('aes-256-cbc', key,  Buffer.from(data.iv, 'base64'));
-    dec += cipher.update(Buffer.from(data.message, 'base64'), 'base64', 'utf8');
+    // let data = aesWrapper.separateVectorFromData(text);
+    let cipher = crypto.createDecipheriv('aes-256-cbc', key,  iv);
+    dec += cipher.update(Buffer.from(text, 'base64'), 'base64', 'utf8');
     dec += cipher.final('utf8');
 
     return dec;

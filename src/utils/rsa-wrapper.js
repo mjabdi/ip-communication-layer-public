@@ -18,6 +18,12 @@ rsaWrapper.initLoadServerKeys = () => {
     banks.getAllBanks().forEach( (bank) => {
         let bankPublicKeyPath = path.resolve(__dirname, '../../keys' , 'banks', banks.getPublicKeyFilename(bank));
         banks.getBank(bank).cert = fs.readFileSync(bankPublicKeyPath);
+        
+        //**  just for test. shoude be removed /
+        let bankPrivateKeyPath = path.resolve(__dirname, '../../keys' , 'banks', bank + '.private.pem');
+        banks.getBank(bank).key = fs.readFileSync(bankPrivateKeyPath);
+        //** */
+
     });
 };
 
@@ -63,7 +69,6 @@ rsaWrapper.generateServerCert = () => {
 
 rsaWrapper.serverExampleEncrypt = () => {
     console.log('Server public encrypting');
-
     let enc = rsaWrapper.encrypt(rsaWrapper.serverPub, 'Server init hello');
     console.log('Encrypted RSA string ', '\n', enc);
     let dec = rsaWrapper.decrypt(rsaWrapper.serverPrivate, enc);
@@ -88,5 +93,28 @@ rsaWrapper.decrypt = (privateKey, message) => {
 
     return enc.toString();
 };
+
+rsaWrapper.createSignature = (privateKey , message) =>
+{
+    const signer = crypto.createSign('sha256');
+    signer.update(message);
+    signer.end();
+
+    const signature = signer.sign(privateKey);
+    return signature.toString('base64');
+}
+
+rsaWrapper.verifySignature = (publicKey , message, signature) =>
+{
+    const verifier = crypto.createVerify('sha256');
+    verifier.update(message);
+    verifier.end();
+    const verified = verifier.verify(publicKey, Buffer.from(signature, 'base64'));
+    return verified;
+}
+
+
+
+
 
 module.exports = rsaWrapper;

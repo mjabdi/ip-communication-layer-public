@@ -1,3 +1,4 @@
+const config = require('config');
 const host = require('./../utils/application').hostname();
 const logger = require('./../utils/logger')();
 const handleMessage = require('./messagehandler').handleMessage;
@@ -16,6 +17,16 @@ const handleRequest = (request) =>
     var connection = request.accept();
     logger.info(`connection accepted from origin :  ${request.origin}`);
     logger.info(`remote_address : ${request.remoteAddress}  with key : ${request.key}`);
+
+    setTimeout(() => {
+        if (!connection.Authenticated)
+        {
+            connection.sendUTF('Handshake Timeout : Connection Closed By Server');
+            logger.info('Handshake Timeout : Connection Closed By Server');
+            request.socket.end();
+        }
+    }, config.HandshakeTimeout || 5000);
+
     
     connection.on('message', handleMessage(connection,request));
 

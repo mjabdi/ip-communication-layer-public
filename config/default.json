@@ -6,5 +6,6 @@
   "WebsocketPort" : "8000",
   "DBHost" : "localhost",
   "DBPort" : 28015,
-  "DBName" : "ipcommunication"
+  "DBName" : "ipcommunication",
+  "HandshakeTimeout" : 30000 
 }

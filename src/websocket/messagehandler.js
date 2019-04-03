@@ -5,6 +5,7 @@ const processAllNeworPendingMessages = require('./../startup/db').processAllNewo
 const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index').messageReceivedFromCore;
 const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
 const publisher = require('./publisher');
+const aesWrapper = require('./../utils/aes-wrapper');
 
 const handleMessage = (connection, request) =>
 {
@@ -17,7 +18,7 @@ const handleMessage = (connection, request) =>
             }
             else
             {
-                messageReceivedFromBank(connection.bank , message);
+                messageReceivedFromBank(connection.Bank , aesWrapper.decrypt(connection.Key, connection.Iv ,message.utf8Data));
             }
 
         }

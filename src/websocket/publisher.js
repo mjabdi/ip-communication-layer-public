@@ -1,5 +1,6 @@
 const SimpleHashTable = require('simple-hashtable');
 const logger = require('./../utils/logger')();
+const aesWrapper = require('./../utils/aes-wrapper');
 
 const _socketConnections = new SimpleHashTable();
 
@@ -7,7 +8,8 @@ const sendMessage = (bank, msg) =>
 {
     if (_socketConnections.containsKey(bank))
     {
-        _socketConnections.get(bank).sendUTF(msg);
+        var msg_enc = aesWrapper.encrypt(_socketConnections.get(bank).Key, _socketConnections.get(bank).Iv, msg);
+        _socketConnections.get(bank).sendUTF(msg_enc);
         logger.info(`msg : '${msg}' sent to bank : '${bank}'`);
     }
     else
@@ -20,7 +22,8 @@ const sendMessageToAll = (msg) =>
 {
     _socketConnections.values().forEach( (conn) =>
     {
-        conn.sendUTF(msg);
+        var msg_enc = aesWrapper.encrypt(conn.Key, conn.Iv, msg);
+        conn.sendUTF(msg_enc);
     });
     logger.info(`msg : '${msg}' sent to all banks`);
 }
