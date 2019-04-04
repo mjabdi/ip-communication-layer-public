@@ -14,7 +14,7 @@ const start = () =>
     });
 
     websocketServer.listen(wsPort, function() {
-    logger.info(`WebSocket server is listening on ws://localhost:${wsPort}`);
+        logger.info(`WebSocket server is listening on ws://localhost:${wsPort}`);
     });
 
     const wsServer = new WebSocketServer({

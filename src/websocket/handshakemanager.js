@@ -5,7 +5,7 @@ const aesWrapper = require('./../utils/aes-wrapper');
 const rsaWrapper = require('./../utils/rsa-wrapper');
 var randomstring = require("randomstring");
 
-const doHandshake = (connection ,request ,message ,callback) => {
+module.exports = (connection ,request ,message ,callback) => {
 
     if (!connection.Bank)
         {
@@ -21,18 +21,7 @@ const doHandshake = (connection ,request ,message ,callback) => {
             connection.Question = randomstring.generate(64);
 
             const enc = rsaWrapper.encrypt(banks.getBank(bank).cert,connection.Question);
-
             const signature = rsaWrapper.createSignature(rsaWrapper.serverPrivate,connection.Question);
-            // logger.info('signature : ' + signature);
-
-            // const verified = rsaWrapper.verifySignature(rsaWrapper.serverPub, connection.Question, signature);
-            // logger.info('verified : ' + verified);
-
-            // let dec = rsaWrapper.decrypt(banks.getBank(bank).key,enc);
-
-            // logger.info('original : ' +  connection.Question);
-            // logger.info('encrypted : ' + enc);
-            // logger.info('decrypted : ' + dec);
 
             const msg = {
                 question : enc,
@@ -51,7 +40,6 @@ const doHandshake = (connection ,request ,message ,callback) => {
             const signature = msg.signature;
             
             const answer = rsaWrapper.decrypt(rsaWrapper.serverPrivate,answer_enc);
-
             const verified = rsaWrapper.verifySignature(banks.getBank(connection.Bank).cert, answer, signature);
 
             if (answer !== connection.Question || !verified)
@@ -64,10 +52,6 @@ const doHandshake = (connection ,request ,message ,callback) => {
 
             connection.Key = aesWrapper.generateKey();
             connection.Iv = aesWrapper.generateIv();
-
-            // logger.info('Key : ' + connection.Key.toString('base64'));
-            // logger.info('Iv : ' + connection.Iv.toString('base64'));
-
 
             const signature_key = rsaWrapper.createSignature(rsaWrapper.serverPrivate,connection.Key.toString('base64'));
             const signature_iv = rsaWrapper.createSignature(rsaWrapper.serverPrivate,connection.Iv.toString('base64'));
@@ -87,13 +71,10 @@ const doHandshake = (connection ,request ,message ,callback) => {
         catch(err)
         {
             connection.sendUTF('Invalid Handshake : Connection Closed By Server');
-            logger.info(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
+            logger.warn(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
             request.socket.end();
             return;
         }
     }
 }
 
-module.exports = {
-    doHandshake
-}

@@ -1,7 +1,6 @@
 {
-  "IpCoreRestAPI": "",
-  "Port" : 8000,
   "LogLevel" : "info",
+  "IPCoreRestAPI": "something",
   "HttpPort" : "3000",
   "WebsocketPort" : "8000",
   "DBHost" : "localhost",

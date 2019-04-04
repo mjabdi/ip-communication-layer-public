@@ -1,32 +1,37 @@
-const path = require('path');
 const rsaWrapper = {};
+
+const path = require('path');
 const fs = require('fs');
 const NodeRSA = require('node-rsa');
 const crypto = require('crypto');
 const banks = require('./../utils/banks');
 const logger = require('./logger')();
+const application = require('./application');
 
 // load keys from file
-rsaWrapper.initLoadServerKeys = () => {
+rsaWrapper.loadCertificates = () => {
 
-    let privateKeyPath = path.resolve(__dirname, '../../keys' , 'server',  'server.private.pem');
-    let publicKeyPath = path.resolve(__dirname, '../../keys' , 'server', 'server.public.pem');
+    try
+    {
+        let privateKeyPath = path.resolve(__dirname, '../../keys' , 'server',  'server.private.pem');
+        let publicKeyPath = path.resolve(__dirname, '../../keys' , 'server', 'server.public.pem');
 
-    rsaWrapper.serverPub = fs.readFileSync(publicKeyPath);
-    rsaWrapper.serverPrivate = fs.readFileSync(privateKeyPath);
+        rsaWrapper.serverPub = fs.readFileSync(publicKeyPath);
+        rsaWrapper.serverPrivate = fs.readFileSync(privateKeyPath);
 
-    banks.getAllBanks().forEach( (bank) => {
-        let bankPublicKeyPath = path.resolve(__dirname, '../../keys' , 'banks', banks.getPublicKeyFilename(bank));
-        banks.getBank(bank).cert = fs.readFileSync(bankPublicKeyPath);
-        
-        //**  just for test. shoude be removed /
-        let bankPrivateKeyPath = path.resolve(__dirname, '../../keys' , 'banks', bank + '.private.pem');
-        banks.getBank(bank).key = fs.readFileSync(bankPrivateKeyPath);
-        //** */
-
-    });
+        banks.getAllBanks().forEach( (bank) => {
+            let bankPublicKeyPath = path.resolve(__dirname, '../../keys' , 'banks', banks.getPublicKeyFilename(bank));
+            banks.getBank(bank).cert = fs.readFileSync(bankPublicKeyPath);
+        });
+    }
+    catch(err)
+    {
+        logger.fatal(`loading certificates failed! : ${err}`);
+        application.shutdown();
+    }
 };
 
+// !!! just for testing and debuging purposes, should not be used in production !!!
 rsaWrapper.generateBankCerts = () => {
 
     logger.info('gerenating banks certificates, please wait...');
@@ -50,6 +55,7 @@ rsaWrapper.generateBankCerts = () => {
     logger.info('banks certificates generated successfully.');
 };
 
+// !!! just for testing and debuging purposes, should not be used in production !!!
 rsaWrapper.generateServerCert = () => {
     let key = new NodeRSA();
     key.generateKeyPair(2048, 65537);
@@ -67,31 +73,38 @@ rsaWrapper.generateServerCert = () => {
     }
 };
 
-rsaWrapper.serverExampleEncrypt = () => {
-    console.log('Server public encrypting');
-    let enc = rsaWrapper.encrypt(rsaWrapper.serverPub, 'Server init hello');
-    console.log('Encrypted RSA string ', '\n', enc);
-    let dec = rsaWrapper.decrypt(rsaWrapper.serverPrivate, enc);
-    console.log('Decrypted RSA string ...');
-    console.log(dec);
-};
-
 rsaWrapper.encrypt = (publicKey, message) => {
-    let enc = crypto.publicEncrypt({
-        key: publicKey,
-        padding: crypto.RSA_PKCS1_OAEP_PADDING
-    }, Buffer.from(message));
+    try
+    {
+        let enc = crypto.publicEncrypt({
+            key: publicKey,
+            padding: crypto.RSA_PKCS1_OAEP_PADDING
+        }, Buffer.from(message));
 
-    return enc.toString('base64');
+        return enc.toString('base64');
+    }
+    catch(err)
+    {
+        logger.error(`encryption failed! : ${err}`);
+        return 'null';
+    }
 };
 
 rsaWrapper.decrypt = (privateKey, message) => {
-    let enc = crypto.privateDecrypt({
-        key: privateKey,
-        padding: crypto.RSA_PKCS1_OAEP_PADDING
-    }, Buffer.from(message, 'base64'));
+    try
+    {
+        let enc = crypto.privateDecrypt({
+            key: privateKey,
+            padding: crypto.RSA_PKCS1_OAEP_PADDING
+        }, Buffer.from(message, 'base64'));
 
-    return enc.toString();
+        return enc.toString();
+    }
+    catch(err)
+    {
+        logger.error(`decryption failed! : ${err}`);
+        return 'null';
+    }
 };
 
 rsaWrapper.createSignature = (privateKey , message) =>
@@ -106,15 +119,19 @@ rsaWrapper.createSignature = (privateKey , message) =>
 
 rsaWrapper.verifySignature = (publicKey , message, signature) =>
 {
-    const verifier = crypto.createVerify('sha256');
-    verifier.update(message);
-    verifier.end();
-    const verified = verifier.verify(publicKey, Buffer.from(signature, 'base64'));
-    return verified;
+    try
+    {
+        const verifier = crypto.createVerify('sha256');
+        verifier.update(message);
+        verifier.end();
+        const verified = verifier.verify(publicKey, Buffer.from(signature, 'base64'));
+        return verified;
+    }
+    catch(err)
+    {
+        logger.error(`sign verification failed! : ${err}`);
+        return false;
+    }
 }
-
-
-
-
 
 module.exports = rsaWrapper;

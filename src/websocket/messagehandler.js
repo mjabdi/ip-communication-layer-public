@@ -14,13 +14,12 @@ const handleMessage = (connection, request) =>
         if (message.type === 'utf8') {
             if (!connection.Authenticated)
             {
-                return HandshakeManager.doHandshake(connection,request,message,initializeConnection);
+                return HandshakeManager(connection,request,message,initializeConnection);
             }
             else
             {
                 messageReceivedFromBank(connection.Bank , aesWrapper.decrypt(connection.Key, connection.Iv ,message.utf8Data));
             }
-
         }
         else if (message.type === 'binary') {
             connection.sendUTF('Invalid Format : Connection Closed By Server');
@@ -43,6 +42,7 @@ const initializeConnection = (bank, socketConnection) =>
     {
         logger.error(err);
         setTimeout(() => {
+            logger.info(`retrying initalize bank '${bank}' connection...`);
             initializeConnection(bank , socketConnection);
         }, 1000);
     }

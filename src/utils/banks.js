@@ -1,8 +1,10 @@
+const banks = {};
+
 const SimpleHashTable = require('simple-hashtable');
 const logger = require('./logger')();
 const _banks = new SimpleHashTable();
 
-const init = () =>
+banks.init = () =>
 {
     if (_banks.size() > 0)
     {
@@ -13,30 +15,24 @@ const init = () =>
     _banks.put('BSIR' , {name : '' , cert : null});
 }
 
-const getAllBanks = () =>
+banks.getAllBanks = () =>
 {
     return _banks.keys();
 }
 
-const getBank = (bank) =>
+banks.getBank = (bank) =>
 {
     return _banks.get(bank);
 }
 
-const exists = (bank) =>
+banks.exists = (bank) =>
 {
     return _banks.containsKey(bank);
 }
 
-const getPublicKeyFilename = (bank) =>
+banks.getPublicKeyFilename = (bank) =>
 {
     return `${bank}.public.pem`;
 }
 
-module.exports = {
-    init,
-    getAllBanks,
-    exists,
-    getPublicKeyFilename,
-    getBank
-}
+module.exports = banks;

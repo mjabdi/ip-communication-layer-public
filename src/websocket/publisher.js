@@ -1,10 +1,12 @@
+const publisher = {};
+
 const SimpleHashTable = require('simple-hashtable');
 const logger = require('./../utils/logger')();
 const aesWrapper = require('./../utils/aes-wrapper');
 
 const _socketConnections = new SimpleHashTable();
 
-const sendMessage = (bank, msg) =>
+publisher.sendMessage = (bank, msg) =>
 {
     if (_socketConnections.containsKey(bank))
     {
@@ -18,7 +20,7 @@ const sendMessage = (bank, msg) =>
     }
 }
 
-const sendMessageToAll = (msg) =>
+publisher.sendMessageToAll = (msg) =>
 {
     _socketConnections.values().forEach( (conn) =>
     {
@@ -28,7 +30,7 @@ const sendMessageToAll = (msg) =>
     logger.info(`msg : '${msg}' sent to all banks`);
 }
 
-const addConnection = (bank ,connection) =>
+publisher.addConnection = (bank ,connection) =>
 {
     if (_socketConnections.containsKey(bank))
     {
@@ -37,7 +39,7 @@ const addConnection = (bank ,connection) =>
     _socketConnections.put(bank ,connection);
 }
 
-const removeConnection = (bank) =>
+publisher.removeConnection = (bank) =>
 {
     if (_socketConnections.containsKey(bank))
     {
@@ -45,9 +47,4 @@ const removeConnection = (bank) =>
     }
 }
 
-module.exports = {
-    sendMessage,
-    sendMessageToAll,
-    addConnection,
-    removeConnection
-}
+module.exports = publisher;

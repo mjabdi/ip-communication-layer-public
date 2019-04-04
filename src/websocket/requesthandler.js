@@ -13,10 +13,8 @@ const handleRequest = (request) =>
         return;
     }
     
-    // var connection = request.accept('echo-protocol', request.origin);
     var connection = request.accept();
-    logger.info(`connection accepted from origin :  ${request.origin}`);
-    logger.info(`remote_address : ${request.remoteAddress}  with key : ${request.key}`);
+    logger.info(`connection accepted from remote_address : ${request.remoteAddress}  with key : ${request.key}`);
 
     setTimeout(() => {
         if (!connection.Authenticated)
@@ -26,11 +24,10 @@ const handleRequest = (request) =>
             request.socket.end();
         }
     }, config.HandshakeTimeout || 5000);
-
     
     connection.on('message', handleMessage(connection,request));
 
-    connection.on('close', function(reasonCode, description) {
+    connection.on('close', (reasonCode, description) => {
         if (connection.Bank)
         {
             logger.info(' Bank ' + connection.Bank + ' disconnected.');
@@ -48,11 +45,10 @@ const handleRequest = (request) =>
         }
         else
         {
-            logger.info(' Peer ' + request.key + ' disconnected.');
+            logger.info(`remote peer with key '${request.key}' disconnected.`);
         }
     });
 }
-
 
 function originIsAllowed(origin) {
     // put logic here to detect whether the specified origin is allowed.

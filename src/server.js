@@ -1,26 +1,25 @@
 
 require('events').EventEmitter.defaultMaxListeners = 0;
 const config = require('config');
-const log4js = require('log4js');
 const http = require('http');
 const express = require('express');
 const app = express();
 const logger = require('./utils/logger')();
 const websocketServer = require('./websocket/websocketserver');
-const initDB =  require('./startup/db').initDB;
+const db =  require('./startup/db');
 const checkConfig =  require('./startup/config');
 const banks = require('./utils/banks');
 const rsaWrapper = require('./utils/rsa-wrapper');
 
 let ready = false;
 
-
-
+//** checking for required configs */
 checkConfig();
+//** */
 
 //** initialize Database */
- initDB();
-//** end of Database initialization */
+ db.initDB();
+//** */
 
 //** initialize Banks */
 banks.init();
@@ -29,7 +28,7 @@ banks.init();
 //** load certificates */
 // rsaWrapper.generateServerCert();
 // rsaWrapper.generateBankCerts();
-rsaWrapper.initLoadServerKeys();
+rsaWrapper.loadCertificates();
 //** */
 
 //** initialize HTTP server on port : ${HttpPort} */
@@ -48,8 +47,6 @@ websocketServer.start();
 //** end of WebSocket server initialaization */
 
 ready = true;
-
-
 
 module.exports.ready = () => {return ready};
 module.exports.live = () => {return true};

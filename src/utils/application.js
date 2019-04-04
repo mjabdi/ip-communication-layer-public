@@ -1,20 +1,17 @@
 
+const application = {};
+
 const log4js = require('log4js');
 const host = require('os').hostname();
 
-const shutdown = () =>
+application.shutdown = () =>
 {
     log4js.shutdown(function() { process.exit(1); });
 }
 
-const hostname = () =>
+application.hostname = () =>
 {
     return host;
 }
 
-module.exports = 
-{
-    shutdown,
-    hostname
-
-}
+module.exports = application;
