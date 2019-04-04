@@ -1,10 +1,12 @@
 {
   "LogLevel" : "info",
   "IPCoreRestAPI": "something",
-  "HttpPort" : "3000",
-  "WebsocketPort" : "8000",
+  "HttpPort" : 3001,
+  "WebsocketPort" : 8001,
   "DBHost" : "localhost",
   "DBPort" : 28015,
   "DBName" : "ipcommunication",
-  "HandshakeTimeout" : 30000 
+  "HandshakeTimeout" : 1000,
+  "ShutdownTimeout" : 5000,
+  "MaxBankConnections" : 1
 }

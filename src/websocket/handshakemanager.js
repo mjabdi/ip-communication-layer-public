@@ -3,9 +3,11 @@ const logger = require('./../utils/logger')();
 const banks = require('./../utils/banks');
 const aesWrapper = require('./../utils/aes-wrapper');
 const rsaWrapper = require('./../utils/rsa-wrapper');
-var randomstring = require("randomstring");
+const randomstring = require("randomstring");
+const db = require('./../startup/db');
+const config = require('config');
 
-module.exports = (connection ,request ,message ,callback) => {
+module.exports = async (connection ,request ,message ,callback) => {
 
     if (!connection.Bank)
         {
@@ -17,6 +19,17 @@ module.exports = (connection ,request ,message ,callback) => {
                 request.socket.end();
                 return;
             }
+
+            const counter = await db.getConnectionCounter(bank);
+            if (counter + 1 > config.MaxBankConnections)
+            {
+                connection.sendUTF('Too Many Connections : Connection Closed By Server');
+                logger.info(`'${bank} : 'Too Many Connections : Connection Closed By Server`);
+                request.socket.end();
+                return; 
+            }
+
+
             connection.Bank = bank;
             connection.Question = randomstring.generate(64);
 

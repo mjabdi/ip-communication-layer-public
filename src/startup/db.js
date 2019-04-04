@@ -1,3 +1,5 @@
+const db = {};
+
 const config = require('config');
 const logger = require('./../utils/logger')();
 const r = require('rethinkdb');
@@ -7,7 +9,7 @@ const Message = require('./../models/message');
 let _connection;
 
 
-const initDB = () => {
+db.initDB = () => {
 
     if (_connection) {
         logger.console.warn("Trying to init DB again!");
@@ -38,12 +40,12 @@ const initDB = () => {
     });
 }
 
-const getConnection = () =>
+db.getConnection = () =>
 {
     return _connection;
 }
 
-const registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
+db.registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
 {
     var table = bank + '_in';
 
@@ -69,7 +71,7 @@ const registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
     });
 }
 
-const processAllNeworPendingMessages = (bank ,socketConnection, callback) =>
+db.processAllNeworPendingMessages = (bank ,socketConnection, callback) =>
 {
     var table = bank + '_in';
 
@@ -94,7 +96,7 @@ const processAllNeworPendingMessages = (bank ,socketConnection, callback) =>
     });
 }
 
-const addNewMessageToQueue = (payload , bank) => {
+db.addNewMessageToQueue = (payload , bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
         var message = new Message(payload);
@@ -118,7 +120,7 @@ const addNewMessageToQueue = (payload , bank) => {
     });
 }
 
-const markMessageAsPending = (id , bank) => {
+db.markMessageAsPending = (id , bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
         r.db(config.DBName).table(table).get(id).update({status: 'pending'}).run(_connection,(err,result) =>
@@ -134,7 +136,7 @@ const markMessageAsPending = (id , bank) => {
     });
 }
 
-const markMessageAsSent = (id , bank) => {
+db.markMessageAsSent = (id , bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
         r.db(config.DBName).table(table).get(id).update({status: 'sent'}).run(_connection,(err,result) =>
@@ -150,18 +152,67 @@ const markMessageAsSent = (id , bank) => {
     });
 }
 
-
-
-
-module.exports = {
-    getConnection,
-    initDB,
-    registerRealtimeMessageFeed,
-    processAllNeworPendingMessages,
-    addNewMessageToQueue,
-    markMessageAsPending,
-    markMessageAsSent
+db.incrementConnectionCounter = (bank) =>
+{
+    return new Promise((resolve, reject) => {
+        var table = 'connections';
+        r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+            r.db(config.DBName).table(table).insert({id: bank, counter: 1}, {conflict: function(id, oldVal, newVal) {
+                return newVal.merge({counter: oldVal('counter').add(1)});
+              }}).run(_connection,(err,result) =>
+              {
+                  if (err) 
+                  {
+                      reject(err);
+                  }
+                  else{
+                      resolve(result.new_val);
+                  }
+              });
+        });
+    });
 }
+
+db.decrementConnectionCounter = (bank) =>
+{
+    return new Promise((resolve, reject) => {
+        var table = 'connections';
+        r.db(config.DBName).table(table).get(bank).update({counter: r.row("counter").sub(1)})
+        .run(_connection,(err,result) =>
+            {
+                if (err) 
+                {
+                    reject(err);
+                }
+                else{
+                    resolve(result.new_val);
+                }
+            });
+    });
+}
+
+db.getConnectionCounter = (bank) => {
+    return new Promise((resolve, reject) => {
+        var table = 'connections';
+        r.db(config.DBName).table(table).get(bank)
+        .run(_connection,(err,result) =>
+            {
+                if (err)
+                {
+                    resolve(0);
+                }
+                else
+                {
+                    logger.info(result);
+                    resolve(result.counter);
+                }
+            });
+    });
+}
+
+
+
+module.exports = db;
 
 
 

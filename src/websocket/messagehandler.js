@@ -28,11 +28,11 @@ const handleMessage = (connection, request) =>
     }
 }
 
-const initializeConnection = (bank, socketConnection) =>
+const initializeConnection = async (bank, socketConnection) =>
 {
     try
     {
-        publisher.addConnection(bank , socketConnection);
+        await publisher.addConnection(bank , socketConnection);
 
         processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore);
 

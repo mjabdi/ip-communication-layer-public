@@ -1,10 +1,12 @@
+const WSSModule = {};
+
 const config = require('config');
 const logger = require('./../utils/logger')();
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const handleRequest = require('./requesthandler').handleRequest;
 
-const start = () => 
+WSSModule.start = () => 
 {
     const wsPort = config.WebsocketPort || 8080;
     const websocketServer = http.createServer(function(request, response) {
@@ -12,6 +14,8 @@ const start = () =>
     response.writeHead(404);
     response.end();
     });
+
+    WSSModule.server = websocketServer;
 
     websocketServer.listen(wsPort, function() {
         logger.info(`WebSocket server is listening on ws://localhost:${wsPort}`);
@@ -21,10 +25,17 @@ const start = () =>
     httpServer: websocketServer,
     autoAcceptConnections: false
     });
+    
+    WSSModule.wsServer = wsServer;
 
     wsServer.on('request', handleRequest);
 }
 
-module.exports = {
-    start
+WSSModule.close = (callback) =>
+{
+    WSSModule.server.close(callback);
+    WSSModule.wsServer.closeAllConnections();
 }
+
+
+module.exports = WSSModule;

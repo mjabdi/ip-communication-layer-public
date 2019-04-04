@@ -27,11 +27,11 @@ const handleRequest = (request) =>
     
     connection.on('message', handleMessage(connection,request));
 
-    connection.on('close', (reasonCode, description) => {
+    connection.on('close', async (reasonCode, description) => {
         if (connection.Bank)
         {
             logger.info(' Bank ' + connection.Bank + ' disconnected.');
-            publisher.removeConnection(connection.Bank);
+            await publisher.removeConnection(connection.Bank);
             if (connection.Cursor)
             {
                 connection.Cursor.close()

@@ -3,6 +3,7 @@ const publisher = {};
 const SimpleHashTable = require('simple-hashtable');
 const logger = require('./../utils/logger')();
 const aesWrapper = require('./../utils/aes-wrapper');
+const db = require('./../startup/db');
 
 const _socketConnections = new SimpleHashTable();
 
@@ -30,20 +31,40 @@ publisher.sendMessageToAll = (msg) =>
     logger.info(`msg : '${msg}' sent to all banks`);
 }
 
-publisher.addConnection = (bank ,connection) =>
+publisher.addConnection = async (bank ,connection) =>
 {
     if (_socketConnections.containsKey(bank))
     {
         _socketConnections.remove(bank);
     }
-    _socketConnections.put(bank ,connection);
+    else
+    {
+        _socketConnections.put(bank ,connection);
+        try{
+            await db.incrementConnectionCounter(bank);
+        }
+        catch(err)
+        {
+            logger.error(err);
+            throw err;
+        }
+    }
 }
 
-publisher.removeConnection = (bank) =>
+publisher.removeConnection = async (bank) =>
 {
     if (_socketConnections.containsKey(bank))
     {
         _socketConnections.remove(bank);
+    }
+    try
+    {
+        await db.decrementConnectionCounter(bank);
+    }
+    catch(err)
+    {
+        logger.error(err);
+        throw err;
     }
 }
 

@@ -10,6 +10,7 @@ const db =  require('./startup/db');
 const checkConfig =  require('./startup/config');
 const banks = require('./utils/banks');
 const rsaWrapper = require('./utils/rsa-wrapper');
+const application = require('./utils/application');
 
 let ready = false;
 
@@ -45,6 +46,11 @@ httpServer.listen(httpPort, function(){
 //** initialaize WebSocket server on port : ${WebsocketPort} */
 websocketServer.start();
 //** end of WebSocket server initialaization */
+
+
+//** doing all the neccessary things and cleanup procedures before shutdown  */
+application.registerForGracefulShutdown(httpServer,websocketServer);
+//** */
 
 ready = true;
 
