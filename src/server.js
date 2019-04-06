@@ -45,7 +45,7 @@ httpServer.listen(httpPort, function(){
 
 //** initialaize WebSocket server on port : ${WebsocketPort} */
 websocketServer.start();
-//** end of WebSocket server initialaization */
+//** end of WebSocket server initialization */
 
 
 //** doing all the neccessary things and cleanup procedures before shutdown  */

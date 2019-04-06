@@ -42,7 +42,7 @@ const initializeConnection = async (bank, socketConnection) =>
     {
         logger.error(err);
         setTimeout(() => {
-            logger.info(`retrying initalize bank '${bank}' connection...`);
+            logger.info(`retrying initialize bank '${bank}' connection...`);
             initializeConnection(bank , socketConnection);
         }, 1000);
     }
