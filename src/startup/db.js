@@ -27,10 +27,9 @@ db.initDB = () => {
         }
         else {
             logger.info(`DB Initialized : connected to ${config.DBHost}:${config.DBPort}:${config.DBName}`);
-
             rethinkDB.dbCreate(config.DBName).run(conn, (result) => {
                 _connection = conn;
-                conn.on('close', function () {
+                conn.on('close', () => {
                     logger.fatal('connection lost to the DB!');
                     application.shutdown();
                 });
@@ -57,7 +56,7 @@ db.registerRealtimeMessageFeed = (bank, socketConnection, callback) => {
             if (err) throw err;
             socketConnection.Cursor = cursor;
             logger.info(' Bank ' + socketConnection.Bank + ' changefeed subscribed.');
-            cursor.each(function (err, row) {
+            cursor.each((err, row) => {
                 if (err) throw err;
 
                 if (row.new_val && !row.old_val)
@@ -80,7 +79,7 @@ db.processAllNeworPendingMessages = (bank, socketConnection, callback) => {
         rethinkDB.db(config.DBName).table(table).filter(rethinkDB.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
             if (err) throw err;
             logger.info(`'${bank}' : checking for pending messages...`);
-            cursor.each(function (err, row) {
+            cursor.each((err, row) => {
                 if (err) throw err;
                 logger.info(`processing pending message : '${JSON.stringify(row)}'`);
                 callback(socketConnection.Bank, row);
@@ -143,7 +142,7 @@ db.incrementConnectionCounter = (bank) => {
         var table = 'connections';
         rethinkDB.db(config.DBName).tableCreate(table).run(_connection, (result) => {
             rethinkDB.db(config.DBName).table(table).insert({id: bank, counter: 1}, {
-                conflict: function (id, oldVal, newVal) {
+                conflict: (id, oldVal, newVal) => {
                     return newVal.merge({counter: oldVal('counter').add(1)});
                 }
             }).run(_connection, (err, result) => {
