@@ -2,7 +2,7 @@ const db = {};
 
 const config = require('config');
 const logger = require('./../utils/logger')();
-const r = require('rethinkdb');
+const rethinkDB = require('rethinkdb');
 const application = require('./../utils/application');
 const Message = require('./../models/message');
 
@@ -16,7 +16,7 @@ db.initDB = () => {
         return;
     }
 
-    r.connect({
+    rethinkDB.connect({
         host: config.DBHost,
         port: config.DBPort,
         db: config.DBName
@@ -28,7 +28,7 @@ db.initDB = () => {
         else {
             logger.info(`DB Initialized : connected to ${config.DBHost}:${config.DBPort}:${config.DBName}`);
 
-            r.dbCreate(config.DBName).run(conn, (result) => {
+            rethinkDB.dbCreate(config.DBName).run(conn, (result) => {
                 _connection = conn;
                 conn.on('close', function () {
                     logger.fatal('connection lost to the DB!');
@@ -52,8 +52,8 @@ db.registerRealtimeMessageFeed = (bank, socketConnection, callback) => {
         return;
     }
 
-    r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
-        r.db(config.DBName).table(table).changes().run(_connection, function (err, cursor) {
+    rethinkDB.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+        rethinkDB.db(config.DBName).table(table).changes().run(_connection, function (err, cursor) {
             if (err) throw err;
             socketConnection.Cursor = cursor;
             logger.info(' Bank ' + socketConnection.Bank + ' changefeed subscribed.');
@@ -76,8 +76,8 @@ db.processAllNeworPendingMessages = (bank, socketConnection, callback) => {
         return;
     }
 
-    r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
-        r.db(config.DBName).table(table).filter(r.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
+    rethinkDB.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+        rethinkDB.db(config.DBName).table(table).filter(r.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
             if (err) throw err;
             logger.info(`'${bank}' : checking for pending messages...`);
             cursor.each(function (err, row) {
@@ -94,7 +94,7 @@ db.addNewMessageToQueue = (payload, bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
         var message = new Message(payload);
-        r.db(config.DBName).table(table).insert(message).run(_connection, (err, result) => {
+        rethinkDB.db(config.DBName).table(table).insert(message).run(_connection, (err, result) => {
             if (err) {
                 reject(err);
             }
@@ -113,7 +113,7 @@ db.addNewMessageToQueue = (payload, bank) => {
 db.markMessageAsPending = (id, bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
-        r.db(config.DBName).table(table).get(id).update({status: 'pending'}).run(_connection, (err, result) => {
+        rethinkDB.db(config.DBName).table(table).get(id).update({status: 'pending'}).run(_connection, (err, result) => {
             if (err) {
                 reject(err);
             }
@@ -127,7 +127,7 @@ db.markMessageAsPending = (id, bank) => {
 db.markMessageAsSent = (id, bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
-        r.db(config.DBName).table(table).get(id).update({status: 'sent'}).run(_connection, (err, result) => {
+        rethinkDB.db(config.DBName).table(table).get(id).update({status: 'sent'}).run(_connection, (err, result) => {
             if (err) {
                 reject(err);
             }
@@ -141,8 +141,8 @@ db.markMessageAsSent = (id, bank) => {
 db.incrementConnectionCounter = (bank) => {
     return new Promise((resolve, reject) => {
         var table = 'connections';
-        r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
-            r.db(config.DBName).table(table).insert({id: bank, counter: 1}, {
+        rethinkDB.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+            rethinkDB.db(config.DBName).table(table).insert({id: bank, counter: 1}, {
                 conflict: function (id, oldVal, newVal) {
                     return newVal.merge({counter: oldVal('counter').add(1)});
                 }
@@ -161,7 +161,7 @@ db.incrementConnectionCounter = (bank) => {
 db.decrementConnectionCounter = (bank) => {
     return new Promise((resolve, reject) => {
         var table = 'connections';
-        r.db(config.DBName).table(table).get(bank).update({counter: r.row("counter").sub(1)})
+        rethinkDB.db(config.DBName).table(table).get(bank).update({counter: r.row("counter").sub(1)})
             .run(_connection, (err, result) => {
                 if (err) {
                     reject(err);
@@ -176,7 +176,7 @@ db.decrementConnectionCounter = (bank) => {
 db.getConnectionCounter = (bank) => {
     return new Promise((resolve, reject) => {
         var table = 'connections';
-        r.db(config.DBName).table(table).get(bank)
+        rethinkDB.db(config.DBName).table(table).get(bank)
             .run(_connection, (err, result) => {
                 if (err) {
                     resolve(0);
