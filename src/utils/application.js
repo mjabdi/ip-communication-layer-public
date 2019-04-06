@@ -1,4 +1,3 @@
-
 const application = {};
 
 const config = require('config');
@@ -6,68 +5,58 @@ const log4js = require('log4js');
 const host = require('os').hostname();
 const logger = require('./logger')();
 
-application.shutdown = () =>
-{
+application.shutdown = () => {
     logger.info('application is shutting down...');
 
     //**  do anything you need before exiting the application here */
-    if (application.httpServer)
-    {
+    if (application.httpServer) {
         logger.info('closing the http server...');
-        application.httpServer.close(() =>
-        {
+        application.httpServer.close(() => {
             logger.info('http server closed.');
-        } );
+        });
     }
 
-    if (application.websocketServer)
-    {
+    if (application.websocketServer) {
         logger.info('closing the websocket server...');
-        application.websocketServer.close(() =>
-        {
+        application.websocketServer.close(() => {
             logger.info('websocket server closed.');
-        } );
+        });
     }
 
-    //** */
 
     setTimeout(() => {
-        log4js.shutdown(function() { process.exit(0); });
+        log4js.shutdown(function () {
+            process.exit(0);
+        });
     }, config.ShutdownTimeout || 3000);
 }
 
-application.hostname = () =>
-{
+application.hostname = () => {
     return host;
 }
 
-application.registerForGracefulShutdown = (httpServer, websocketServer) =>
-{
+application.registerForGracefulShutdown = (httpServer, websocketServer) => {
     application.httpServer = httpServer;
     application.websocketServer = websocketServer;
 
     process.on('SIGTERM', () => {
-        if (!application.exitSignalReceived)
-        {
+        if (!application.exitSignalReceived) {
             application.exitSignalReceived = true;
             logger.info('SIGTERM signal received.');
             application.shutdown();
         }
-        else
-        {
+        else {
             console.log('application is shutting down. please wait...');
         }
-      });
+    });
 
-      process.on('SIGINT', () => {
-        if (!application.exitSignalReceived)
-        {
+    process.on('SIGINT', () => {
+        if (!application.exitSignalReceived) {
             application.exitSignalReceived = true;
             logger.info('SIGINT signal received.');
             application.shutdown();
         }
-        else
-        {
+        else {
             console.log('application is shutting down. please wait...');
         }
       });
