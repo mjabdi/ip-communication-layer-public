@@ -1,26 +1,53 @@
-const host = require('./../utils/application').hostname();
 const logger = require('./../utils/logger')();
 const HandshakeManager = require('./handshakemanager');
-const TransactionHandler = require('./transactionhandler');
+const registerRealtimeMessageFeed = require('./../startup/db').registerRealtimeMessageFeed;
+const processAllNeworPendingMessages = require('./../startup/db').processAllNeworPendingMessages;
+const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index').messageReceivedFromCore;
+const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
+const publisher = require('./publisher');
+const aesWrapper = require('./../utils/aes-wrapper');
 
-module.exports = (connection,request) => {
-
-    return (message) => {
-        
+const handleMessage = (connection, request) =>
+{
+    return (message) =>
+    {
         if (message.type === 'utf8') {
             if (!connection.Authenticated)
             {
-                return HandshakeManager.doHandshake(connection,request,message);
+                return HandshakeManager(connection,request,message,initializeConnection);
             }
             else
             {
-                TransactionHandler.processTransaction(connection,request,message);
+                messageReceivedFromBank(connection.Bank , aesWrapper.decrypt(connection.Key, connection.Iv ,message.utf8Data));
             }
-
         }
         else if (message.type === 'binary') {
-            connection.sendUTF('Invalid Data : Connection Closed By Server');
+            connection.sendUTF('Invalid Format : Connection Closed By Server');
             request.socket.end();
         }
     }
+}
+
+const initializeConnection = async (bank, socketConnection) =>
+{
+    try
+    {
+        await publisher.addConnection(bank , socketConnection);
+
+        processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore);
+
+        registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
+    }
+    catch(err)
+    {
+        logger.error(err);
+        setTimeout(() => {
+            logger.info(`retrying initalize bank '${bank}' connection...`);
+            initializeConnection(bank , socketConnection);
+        }, 1000);
+    }
+}
+
+module.exports = {
+    handleMessage
 }

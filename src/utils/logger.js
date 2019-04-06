@@ -14,6 +14,5 @@ module.exports = () =>
         categories: { default: { appenders: ['file','console'], level: logger.level = config.LogLevel } }
       });
 
-
     return logger;
 } 
