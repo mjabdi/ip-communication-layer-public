@@ -77,7 +77,7 @@ db.processAllNeworPendingMessages = (bank, socketConnection, callback) => {
     }
 
     rethinkDB.db(config.DBName).tableCreate(table).run(_connection, (result) => {
-        rethinkDB.db(config.DBName).table(table).filter(r.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
+        rethinkDB.db(config.DBName).table(table).filter(rethinkDB.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
             if (err) throw err;
             logger.info(`'${bank}' : checking for pending messages...`);
             cursor.each(function (err, row) {
