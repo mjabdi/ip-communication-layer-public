@@ -56,7 +56,7 @@ db.registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
         return;
     }
 
-    r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+    // r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
         r.db(config.DBName).table(table).changes().run(_connection, function (err, cursor) {
             if (err) throw err;
             socketConnection.Cursor = cursor;
@@ -68,7 +68,7 @@ db.registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
                 callback(socketConnection.Bank, row.new_val);
             });
           });
-    });
+    // });
 }
 
 db.processAllNeworPendingMessages = (bank ,socketConnection, callback) =>

@@ -9,15 +9,15 @@ const handleRequest = require('./requesthandler').handleRequest;
 WSSModule.start = () => 
 {
     const wsPort = config.WebsocketPort || 8080;
-    const websocketServer = http.createServer(function(request, response) {
-    logger.info(`Received request for ${request.url}`);
-    response.writeHead(404);
-    response.end();
+    const websocketServer = http.createServer( (request, response) => {
+        logger.info(`Received request for ${request.url}`);
+        response.writeHead(404);
+        response.end();
     });
 
     WSSModule.server = websocketServer;
 
-    websocketServer.listen(wsPort, function() {
+    websocketServer.listen(wsPort, () => {
         logger.info(`WebSocket server is listening on ws://localhost:${wsPort}`);
     });
 
