@@ -6,7 +6,7 @@
   "DBHost" : "localhost",
   "DBPort" : 28015,
   "DBName" : "ipcommunication",
-  "HandshakeTimeout" : 1000,
+  "HandshakeTimeout" : 10000,
   "ShutdownTimeout" : 5000,
   "MaxBankConnections" : 1
 }
