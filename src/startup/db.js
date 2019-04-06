@@ -59,7 +59,6 @@ db.registerRealtimeMessageFeed = (bank, socketConnection, callback) => {
             logger.info(' Bank ' + socketConnection.Bank + ' changefeed subscribed.');
             cursor.each(function (err, row) {
                 if (err) throw err;
-
                 if (row.new_val && !row.old_val)
                     callback(socketConnection.Bank, row.new_val);
             });
@@ -68,24 +67,28 @@ db.registerRealtimeMessageFeed = (bank, socketConnection, callback) => {
 }
 
 db.processAllNeworPendingMessages = (bank, socketConnection, callback) => {
-    var table = bank + '_in';
+    return new Promise((resolve,reject) =>
+    {
+        var table = bank + '_in';
 
-    if (!_connection) {
-        logger.fatal('trying to get pending messages but DB is disconnected!');
-        application.shutdown();
-        return;
-    }
+        if (!_connection) {
+            logger.fatal('trying to get pending messages but DB is disconnected!');
+            application.shutdown();
+            return;
+        }
 
-    rethinkDB.db(config.DBName).tableCreate(table).run(_connection, (result) => {
-        rethinkDB.db(config.DBName).table(table).filter(rethinkDB.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
-            if (err) throw err;
-            logger.info(`'${bank}' : checking for pending messages...`);
-            cursor.each(function (err, row) {
-                if (err) throw err;
-                logger.info(`processing pending message : '${JSON.stringify(row)}'`);
-                callback(socketConnection.Bank, row);
+        rethinkDB.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+            rethinkDB.db(config.DBName).table(table).filter(rethinkDB.row('status').eq('sent').not()).run(_connection, function (err, cursor) {
+                if (err) reject(err);
+                logger.info(`'${bank}' : checking for pending messages...`);
+                cursor.each( (err, row) => {
+                    if (err) reject(err);
+                    logger.info(`processing pending message : '${JSON.stringify(row)}'`);
+                    callback(socketConnection.Bank, row);
+                });
+                logger.info(`'${bank}' : checking for pending messages done.`);
+                resolve(true);
             });
-            logger.info(`'${bank}' : checking for pending messages done.`);
         });
     });
 }

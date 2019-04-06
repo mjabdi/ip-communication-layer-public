@@ -34,7 +34,7 @@ const initializeConnection = async (bank, socketConnection) =>
     {
         await publisher.addConnection(bank , socketConnection);
 
-        processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore);
+        await processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore);
 
         registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
     }
