@@ -25,7 +25,7 @@ application.shutdown = () => {
 
 
     setTimeout(() => {
-        log4js.shutdown(function () {
+        log4js.shutdown( ()=> {
             process.exit(0);
         });
     }, config.ShutdownTimeout || 3000);
