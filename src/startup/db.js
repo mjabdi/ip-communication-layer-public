@@ -161,7 +161,7 @@ db.incrementConnectionCounter = (bank) => {
 db.decrementConnectionCounter = (bank) => {
     return new Promise((resolve, reject) => {
         var table = 'connections';
-        rethinkDB.db(config.DBName).table(table).get(bank).update({counter: r.row("counter").sub(1)})
+        rethinkDB.db(config.DBName).table(table).get(bank).update({counter: rethinkDB.row("counter").sub(1)})
             .run(_connection, (err, result) => {
                 if (err) {
                     reject(err);
