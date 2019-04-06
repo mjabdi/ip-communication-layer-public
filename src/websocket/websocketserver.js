@@ -1,4 +1,3 @@
-
 const WSSModule = {};
 
 const config = require('config');
