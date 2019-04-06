@@ -17,21 +17,20 @@ db.initDB = () => {
     }
 
     r.connect({
-        host : config.DBHost,
-        port : config.DBPort,
+        host: config.DBHost,
+        port: config.DBPort,
         db: config.DBName
-    }, function(err, conn) {
+    }, (err, conn) => {
         if (err) {
             logger.fatal('could not connect to the DB!');
             application.shutdown();
         }
-        else
-        {
+        else {
             logger.info(`DB Initialized : connected to ${config.DBHost}:${config.DBPort}:${config.DBName}`);
-            
-            r.dbCreate(config.DBName).run(conn,(result) => {
+
+            r.dbCreate(config.DBName).run(conn, (result) => {
                 _connection = conn;
-                conn.on('close', function() {
+                conn.on('close', function () {
                     logger.fatal('connection lost to the DB!');
                     application.shutdown();
                 });
@@ -40,43 +39,38 @@ db.initDB = () => {
     });
 }
 
-db.getConnection = () =>
-{
+db.getConnection = () => {
     return _connection;
 }
 
-db.registerRealtimeMessageFeed = (bank ,socketConnection, callback) =>
-{
+db.registerRealtimeMessageFeed = (bank, socketConnection, callback) => {
     var table = bank + '_in';
 
-    if (!_connection)
-    {
+    if (!_connection) {
         logger.fatal('trying to register for changefeed but DB is disconnected!');
         application.shutdown();
         return;
     }
 
-    // r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
+    r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
         r.db(config.DBName).table(table).changes().run(_connection, function (err, cursor) {
             if (err) throw err;
             socketConnection.Cursor = cursor;
             logger.info(' Bank ' + socketConnection.Bank + ' changefeed subscribed.');
             cursor.each(function (err, row) {
-              if (err) throw err;
+                if (err) throw err;
 
-              if (row.new_val && !row.old_val)
-                callback(socketConnection.Bank, row.new_val);
+                if (row.new_val && !row.old_val)
+                    callback(socketConnection.Bank, row.new_val);
             });
-          });
-    // });
+        });
+    });
 }
 
-db.processAllNeworPendingMessages = (bank ,socketConnection, callback) =>
-{
+db.processAllNeworPendingMessages = (bank, socketConnection, callback) => {
     var table = bank + '_in';
 
-    if (!_connection)
-    {
+    if (!_connection) {
         logger.fatal('trying to get pending messages but DB is disconnected!');
         application.shutdown();
         return;
@@ -92,99 +86,87 @@ db.processAllNeworPendingMessages = (bank ,socketConnection, callback) =>
                 callback(socketConnection.Bank, row);
             });
             logger.info(`'${bank}' : checking for pending messages done.`);
-          });
+        });
     });
 }
 
-db.addNewMessageToQueue = (payload , bank) => {
+db.addNewMessageToQueue = (payload, bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
         var message = new Message(payload);
-        r.db(config.DBName).table(table).insert(message).run(_connection,(err,result) =>
-        {
-            if (err) 
-            {
+        r.db(config.DBName).table(table).insert(message).run(_connection, (err, result) => {
+            if (err) {
                 reject(err);
             }
-            else{
-                if (result.errors > 0)
-                {
+            else {
+                if (result.errors > 0) {
                     reject(result);
                 }
-                else
-                {
-                    resolve({id : result.generated_keys[0]});
+                else {
+                    resolve({id: result.generated_keys[0]});
                 }
             }
         });
     });
 }
 
-db.markMessageAsPending = (id , bank) => {
+db.markMessageAsPending = (id, bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
-        r.db(config.DBName).table(table).get(id).update({status: 'pending'}).run(_connection,(err,result) =>
-        {
-            if (err) 
-            {
+        r.db(config.DBName).table(table).get(id).update({status: 'pending'}).run(_connection, (err, result) => {
+            if (err) {
                 reject(err);
             }
-            else{
+            else {
                 resolve(result.new_val);
             }
         });
     });
 }
 
-db.markMessageAsSent = (id , bank) => {
+db.markMessageAsSent = (id, bank) => {
     return new Promise((resolve, reject) => {
         var table = bank + '_in';
-        r.db(config.DBName).table(table).get(id).update({status: 'sent'}).run(_connection,(err,result) =>
-        {
-            if (err) 
-            {
+        r.db(config.DBName).table(table).get(id).update({status: 'sent'}).run(_connection, (err, result) => {
+            if (err) {
                 reject(err);
             }
-            else{
+            else {
                 resolve(result.new_val);
             }
         });
     });
 }
 
-db.incrementConnectionCounter = (bank) =>
-{
+db.incrementConnectionCounter = (bank) => {
     return new Promise((resolve, reject) => {
         var table = 'connections';
         r.db(config.DBName).tableCreate(table).run(_connection, (result) => {
-            r.db(config.DBName).table(table).insert({id: bank, counter: 1}, {conflict: function(id, oldVal, newVal) {
-                return newVal.merge({counter: oldVal('counter').add(1)});
-              }}).run(_connection,(err,result) =>
-              {
-                  if (err) 
-                  {
-                      reject(err);
-                  }
-                  else{
-                      resolve(result.new_val);
-                  }
-              });
+            r.db(config.DBName).table(table).insert({id: bank, counter: 1}, {
+                conflict: function (id, oldVal, newVal) {
+                    return newVal.merge({counter: oldVal('counter').add(1)});
+                }
+            }).run(_connection, (err, result) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(result.new_val);
+                }
+            });
         });
     });
 }
 
-db.decrementConnectionCounter = (bank) =>
-{
+db.decrementConnectionCounter = (bank) => {
     return new Promise((resolve, reject) => {
         var table = 'connections';
         r.db(config.DBName).table(table).get(bank).update({counter: r.row("counter").sub(1)})
-        .run(_connection,(err,result) =>
-            {
-                if (err) 
-                {
+            .run(_connection, (err, result) => {
+                if (err) {
                     reject(err);
                 }
-                else{
+                else {
                     resolve(result.new_val);
                 }
             });
@@ -195,21 +177,17 @@ db.getConnectionCounter = (bank) => {
     return new Promise((resolve, reject) => {
         var table = 'connections';
         r.db(config.DBName).table(table).get(bank)
-        .run(_connection,(err,result) =>
-            {
-                if (err)
-                {
+            .run(_connection, (err, result) => {
+                if (err) {
                     resolve(0);
                 }
-                else
-                {
+                else {
                     logger.info(result);
                     resolve(result.counter);
                 }
             });
     });
 }
-
 
 
 module.exports = db;
