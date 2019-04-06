@@ -71,6 +71,32 @@ application.registerForGracefulShutdown = (httpServer, websocketServer) =>
             console.log('application is shutting down. please wait...');
         }
       });
+
+      process.on('uncaughtException', (err) => {
+        if (!application.exitSignalReceived)
+        {
+            application.exitSignalReceived = true;
+            logger.fatal(`Uncaught Exception occured : ${err}`);
+            application.shutdown();
+        }
+        else
+        {
+            console.log('application is shutting down. please wait...');
+        }
+    });
+
+    process.on('unhandledRejection', (err) => {
+        if (!application.exitSignalReceived)
+        {
+            application.exitSignalReceived = true;
+            logger.fatal(`Unhandled Promise Rejection occured : ${err}`);
+            application.shutdown();
+        }
+        else
+        {
+            console.log('application is shutting down. please wait...');
+        }
+    });
 }
 
 module.exports = application;

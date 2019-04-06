@@ -57,15 +57,8 @@ publisher.removeConnection = async (bank) =>
     {
         _socketConnections.remove(bank);
     }
-    try
-    {
-        await db.decrementConnectionCounter(bank);
-    }
-    catch(err)
-    {
-        logger.error(err);
-        throw err;
-    }
+    
+    await db.decrementConnectionCounter(bank);
 }
 
 module.exports = publisher;
