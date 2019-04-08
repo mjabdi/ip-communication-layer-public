@@ -27,8 +27,8 @@ banks.init();
 //** end of Banks initialization */
 
 //** load certificates */
-// rsaWrapper.generateServerCert();
-// rsaWrapper.generateBankCerts();
+rsaWrapper.generateServerCert();
+rsaWrapper.generateBankCerts();
 rsaWrapper.loadCertificates();
 //** */
 
