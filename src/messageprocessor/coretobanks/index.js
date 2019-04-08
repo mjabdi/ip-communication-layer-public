@@ -2,25 +2,29 @@ const logger = require('./../../utils/logger')();
 const publisher = require('./../../websocket/publisher');
 const db = require('./../../startup/db');
 
-const messageReceivedFromCore = async (bank, msg) =>
+const messageReceivedFromCore = (bank, msg) =>
 {
     logger.info(`new message received from core to bank '${bank}' : ${JSON.stringify(msg)}`);
-    try
-    {
-        /** Mark the message as pending */
-        await db.markMessageAsPending(msg.id,bank);
-        /***/
 
-        publisher.sendMessage(bank, msg.payload);
-
-        /** Mark the message as sent */
-        await db.markMessageAsSent(msg.id,bank);
-        /***/
-    }
-    catch(err)
+    /** Mark the message as pending */
+    db.markMessageAsPending(msg.id,bank).then( (result) =>
     {
-        logger.error(`error in messageReceivedFromCore : ${err}`);
-    }
+        try{
+            publisher.sendMessage(bank, msg.payload);
+
+            /** Mark the message as sent */
+            db.markMessageAsSent(msg.id,bank).then( (result) =>
+            {
+    
+            }).catch( err => logger.error(`error in messageReceivedFromCore : ${err}`));
+
+        }
+        catch(err)
+        {
+            
+        }
+            
+    }).catch( err => logger.error(`error in messageReceivedFromCore : ${err}`));
 }
 
 module.exports = {

@@ -18,6 +18,8 @@ WSSModule.start = () => {
 
     websocketServer.listen(wsPort, () => {
         logger.info(`WebSocket server is listening on ws://localhost:${wsPort}`);
+        console.log(`WebSocket server is listening on ws://localhost:${wsPort}`);
+
     });
 
     const wsServer = new WebSocketServer({

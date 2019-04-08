@@ -28,24 +28,21 @@ const handleMessage = (connection, request) =>
     }
 }
 
-const initializeConnection = async (bank, socketConnection) =>
+const initializeConnection = (bank, socketConnection) =>
 {
-    try
+    publisher.addConnection(bank , socketConnection).then( () =>
     {
-        await publisher.addConnection(bank , socketConnection);
-
-        await processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore);
-
-        registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
-    }
-    catch(err)
-    {
-        logger.error(err);
-        setTimeout(() => {
-            logger.info(`retrying initialize bank '${bank}' connection...`);
-            initializeConnection(bank , socketConnection);
-        }, 1000);
-    }
+        processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore).then( (result) =>
+        {
+            registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
+        }).catch((err) => {
+            logger.error(err);
+            setTimeout(() => {
+                logger.info(`retrying initialize bank '${bank}' connection...`);
+                initializeConnection(bank , socketConnection);
+            }, 1000);
+        });
+    });
 }
 
 module.exports = {

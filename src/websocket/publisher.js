@@ -31,24 +31,23 @@ publisher.sendMessageToAll = (msg) =>
     logger.info(`msg : '${msg}' sent to all banks`);
 }
 
-publisher.addConnection = async (bank ,connection) =>
+publisher.addConnection = (bank ,connection) =>
 {
-    if (_socketConnections.containsKey(bank))
+    return new Promise( (resolve, reject) =>
     {
-        _socketConnections.remove(bank);
-    }
-    else
-    {
-        _socketConnections.put(bank ,connection);
-        try{
-            await db.incrementConnectionCounter(bank);
-        }
-        catch(err)
+        if (_socketConnections.containsKey(bank))
         {
-            logger.error(err);
-            throw err;
+            reject(new Error(`Bank ${bank} already has a connection!`));
         }
-    }
+        else
+        {
+            _socketConnections.put(bank ,connection);
+             db.incrementConnectionCounter(bank).then( (result) => 
+             {
+                resolve();
+             });
+        }
+    });
 }
 
 publisher.removeConnection = async (bank) =>

@@ -12,47 +12,54 @@ const banks = require('./utils/banks');
 const rsaWrapper = require('./utils/rsa-wrapper');
 const application = require('./utils/application');
 
-let ready = false;
+async function run()
+{
 
-//** checking for required configs */
-checkConfig();
-//** */
+  let ready = false;
 
-//** initialize Database */
- db.initDB();
-//** */
+  //** checking for required configs */
+  checkConfig();
+  //** */
 
-//** initialize Banks */
-banks.init();
-//** end of Banks initialization */
+  //** initialize Database */
+  await db.initDB();
+  //** */
 
-//** load certificates */
-// rsaWrapper.generateServerCert();
-// rsaWrapper.generateBankCerts();
-rsaWrapper.loadCertificates();
-//** */
+  //** initialize Banks */
+  banks.init();
+  //** end of Banks initialization */
 
-//** initialize HTTP server on port : ${HttpPort} */
-const httpServer = http.createServer(app);
-// app.use(log4js.connectLogger(logger, { level: logger.level }));
-require('./startup/routes')(app);
-const httpPort = config.HttpPort || 3000;
-httpServer.listen(httpPort, function(){
-  logger.info(`Http server is listening on http://localhost:${httpPort}`);
-});
-//** end of HTTP server initialization */
+  //** load certificates */
+  // rsaWrapper.generateServerCert();
+  // rsaWrapper.generateBankCerts();
+  rsaWrapper.loadCertificates();
+  //** */
 
-
-//** initialaize WebSocket server on port : ${WebsocketPort} */
-websocketServer.start();
-//** end of WebSocket server initialization */
+  //** initialize HTTP server on port : ${HttpPort} */
+  const httpServer = http.createServer(app);
+  // app.use(log4js.connectLogger(logger, { level: logger.level }));
+  require('./startup/routes')(app);
+  const httpPort = config.HttpPort || 3000;
+  httpServer.listen(httpPort, function(){
+    logger.info(`Http server is listening on http://localhost:${httpPort}`);
+    console.log(`Http server is listening on http://localhost:${httpPort}`);
+  });
+  //** end of HTTP server initialization */
 
 
-//** doing all the neccessary things and cleanup procedures before shutdown  */
-application.registerForGracefulShutdown(httpServer,websocketServer);
-//** */
+  //** initialaize WebSocket server on port : ${WebsocketPort} */
+  websocketServer.start();
+  //** end of WebSocket server initialization */
 
-ready = true;
+
+  //** doing all the neccessary things and cleanup procedures before shutdown  */
+  application.registerForGracefulShutdown(httpServer,websocketServer);
+  //** */
+
+  ready = true;
+}
+
+run();
 
 module.exports.ready = () => {return ready};
 module.exports.live = () => {return true};
