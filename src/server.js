@@ -17,6 +17,11 @@ async function run()
 
   let ready = false;
 
+  //** Gobal Error Handling */
+  application.registerGlobalErrorHandler();
+  //** */
+
+
   //** checking for required configs */
   checkConfig();
   //** */

@@ -100,7 +100,7 @@ db.addNewMessageToQueue = (payload, bank) => {
                 reject(err);
             }
             else {
-                if (result.errors > 0) {
+                if (!result || result.errors > 0) {
                     reject(result);
                 }
                 else {
