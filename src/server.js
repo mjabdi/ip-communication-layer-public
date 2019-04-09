@@ -12,11 +12,10 @@ const banks = require('./utils/banks');
 const rsaWrapper = require('./utils/rsa-wrapper');
 const application = require('./utils/application');
 
+let ready = false;
+
 async function run()
 {
-
-  let ready = false;
-
   //** Gobal Error Handling */
   application.registerGlobalErrorHandler();
   //** */
