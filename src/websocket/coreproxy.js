@@ -3,6 +3,7 @@ const coreProxy = {};
 const WebSocketClient = require('websocket').client;
 const config = require('config');
 const logger = require('./../utils/logger')();
+const bankConnections = require('./bankconnections');
 
 const _socketConnectionArray = [];
 
@@ -11,7 +12,7 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
     socketConnection.proxyConnectionsCount = 0;
     socketConnection.proxyConnectionMonitor = setInterval(() => {
         
-        if (socketConnection.proxyConnectionsCount < config.CoreProxyNodes)
+        if (socketConnection.proxyConnectionsCount < config.CoreProxyNodes && bankConnections.bankExists(bank))
         {
                 var client = new WebSocketClient();
                 // client.on('connectFailed', (error) => {
@@ -23,8 +24,12 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
                         connection.on('close',  () => {
                             if (connection.opened)
                             {
+                                connection.opened = false;
                                 socketConnection.proxyConnectionsCount --;
-                                logger.warn(`bank '${bank}' one connection to core-proxy closed! : ${socketConnection.proxyConnectionsCount}/${config.CoreProxyNodes} connections available`);
+                                if (bankConnections.bankExists(bank))
+                                {
+                                    logger.warn(`bank '${bank}' one connection to core-proxy closed! : ${socketConnection.proxyConnectionsCount}/${config.CoreProxyNodes} connections available`);
+                                }
                             }
                         });
                         connection.on('message', (message) => {
@@ -57,15 +62,32 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
     }, 10);
 }
 
+coreProxy.sendBackMessage = (bank , msg) =>
+{
+    _socketConnectionArray.forEach( (conn) => {
+        if (conn.opened)
+        {
+            try{
+                conn.sendUTF(JSON.stringify({bank , msg }));
+                return;
+            }catch(err)
+            {
+            }
+        }
+    });
+}
+
+
 coreProxy.unRegisterRealtimeFeed = (bank) =>
 {
     _socketConnectionArray.forEach( (conn) => {
-        if (conn.Bank === bank)
+        if (conn.Bank === bank && conn.opened)
         {
             try{
-                conn.request.socket.end();
+                conn.close();
             }catch(err)
             {
+                logger.error(err);
             }
         }
     });
