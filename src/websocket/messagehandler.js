@@ -6,6 +6,7 @@ const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index
 const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
 const publisher = require('./publisher');
 const aesWrapper = require('./../utils/aes-wrapper');
+const coreProxy = require('./coreproxy');
 
 const handleMessage = (connection, request) =>
 {
@@ -14,7 +15,7 @@ const handleMessage = (connection, request) =>
         if (message.type === 'utf8') {
             if (!connection.Authenticated)
             {
-                return HandshakeManager(connection,request,message,initializeConnection);
+                return HandshakeManager(connection, request, message, initializeConnection);
             }
             else
             {
@@ -30,17 +31,11 @@ const handleMessage = (connection, request) =>
 
 const initializeConnection = (bank, socketConnection) =>
 {
-    publisher.addConnection(bank , socketConnection).then( () =>
+    publisher.addConnection(bank, socketConnection).then( () =>
     {
-        processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore).then( (result) =>
+        coreProxy.registerRealtimeFeed(bank, socketConnection, messageReceivedFromCore , () =>
         {
-            registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
-        }).catch((err) => {
-            logger.error(err);
-            setTimeout(() => {
-                logger.info(`retrying initialize bank '${bank}' connection...`);
-                initializeConnection(bank , socketConnection);
-            }, 1000);
+            logger.info(`Bank '${bank}' subscribed for message feed from core.`);
         });
     });
 }

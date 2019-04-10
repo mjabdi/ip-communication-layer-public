@@ -8,7 +8,6 @@ const db = require('./../startup/db');
 const config = require('config');
 
 module.exports = async (connection ,request ,message ,callback) => {
-
     if (!connection.Bank)
         {
             const bank = message.utf8Data.trim();

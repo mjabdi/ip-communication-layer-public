@@ -3,6 +3,7 @@ const host = require('./../utils/application').hostname();
 const logger = require('./../utils/logger')();
 const handleMessage = require('./messagehandler').handleMessage;
 const publisher = require('./publisher');
+const coreProxy = require('./coreproxy');
 
 const handleRequest = (request) =>
 {
@@ -15,6 +16,8 @@ const handleRequest = (request) =>
     
     var connection = request.accept();
     logger.info(`connection accepted from remote_address : ${request.remoteAddress}  with key : ${request.key}`);
+
+    connection.request = request;
 
     setTimeout(() => {
         if (!connection.Authenticated)
@@ -32,16 +35,8 @@ const handleRequest = (request) =>
         {
             logger.info(' Bank ' + connection.Bank + ' disconnected.');
             await publisher.removeConnection(connection.Bank);
-            if (connection.Cursor)
-            {
-                connection.Cursor.close()
-                .then(() => {
-                    logger.info(' Bank ' + connection.Bank + ' changefeed unsubscribed.');
-                })
-                .catch((err) => {
-                    logger.error('An error occurred on cursor close for changefeed on bank : ' +  connection.Bank );
-                });
-            }
+            coreProxy.unRegisterRealtimeFeed(connection.Bank);
+            logger.info(`Bank '${connection.Bank}' message feed unsubscribed.`);
         }
         else
         {

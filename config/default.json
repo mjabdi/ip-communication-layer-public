@@ -1,5 +1,5 @@
 {
-  "LogLevel" : "error",
+  "LogLevel" : "info",
   "IPCoreRestAPI": "something",
   "HttpPort" : 3001,
   "WebsocketPort" : 8001,
@@ -8,5 +8,7 @@
   "DBName" : "ipcommunication",
   "HandshakeTimeout" : 30000,
   "ShutdownTimeout" : 5000,
-  "MaxBankConnections" : 1
+  "MaxBankConnections" : 1,
+  "CoreProxyNodes" : 1,
+  "CoreProxyAddress" : "ws://localhost:8000"
 }

@@ -5,5 +5,7 @@
   "WebsocketPort" : "WEBSOCKET_PORT",
   "DBHost" : "DBHOST",
   "DBPort" : "DBPORT",
-  "DBName" : "DBNAME"
+  "DBName" : "DBNAME",
+  "CoreProxyNodes" : "CORE_PROXY_NODES",
+  "CoreProxyAddress" : "CORE_PROXY_ADDRESS"
 }

@@ -11,6 +11,7 @@ module.exports = () => {
         'DBHost',
         'DBPort',
         'DBName',
+        'CoreProxyNodes'
     ];
 
     let error = false;
