@@ -15,9 +15,9 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
         if (socketConnection.proxyConnectionsCount < config.CoreProxyNodes && bankConnections.bankExists(bank))
         {
                 var client = new WebSocketClient();
-                client.on('connectFailed', (error) => {
-                   logger.error('Connect Error: ' + error.toString());
-                });
+                // client.on('connectFailed', (error) => {
+                //    logger.error('Connect Error: ' + error.toString());
+                // });
 
                 client.on('connect', (connection) => {
                         connection.sendUTF(bank);
