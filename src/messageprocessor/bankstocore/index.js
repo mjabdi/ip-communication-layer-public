@@ -12,7 +12,6 @@ const messageReceivedFromBank = (bank, msg) =>
     var message = JSON.parse(msg);
     if (message.type === 'message')
     {
-        coreProxy.sendRcvdId(bank, message.id);
         if (!acks.containsId(message.id))
         {
             request({
@@ -34,13 +33,14 @@ const messageReceivedFromBank = (bank, msg) =>
                 {
                     logger.error(`could not call Core API : error : ${err}`);
                 } else if (response) {
-                    publisher.sendAcktoBank(bank, message.id);
                     if (response.attempts > 1)
                     {
                         logger.warn('The number of request attempts: ' + response.attempts);
                     }
                 }
             });
+            coreProxy.sendRcvdId(bank, message.id);
+            publisher.sendAcktoBank(bank, message.id);
         }
     }
     else if (message.type === 'ack')

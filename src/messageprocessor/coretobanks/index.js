@@ -13,7 +13,6 @@ const messageReceivedFromCore = (bank, msg) => // msg : {type , msg , id}
     else if (message.type === 'rcvd')
     {
         acks.idReceived(message.bank , message.payload);
-        logger.warn(message);
     }
 }
 

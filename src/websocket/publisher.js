@@ -10,9 +10,10 @@ publisher.sendMessage = (bank, msg) =>
     var message = JSON.parse(msg);
     if (!bankConnections.bankExists(bank))
     {
-        setTimeout(() => {
-            coreProxy.sendBackMessage(bank, message.msg, message.id);   
-        }, 1000);
+        //** do nothing, core-proxy will send it agian itself */
+        // setTimeout(() => {
+        //     coreProxy.sendBackMessage(bank, message.msg, message.id);   
+        // }, 1000);
     }
     else 
     {
@@ -23,10 +24,11 @@ publisher.sendMessage = (bank, msg) =>
             logger.info(`msg : '${msg}' sent to bank : '${bank}'`);
         }catch(err)
         {
-            logger.error(err);
-            setTimeout(() => {
-                coreProxy.sendBackMessage(bank, message.msg , message.id);
-            }, 1000);    
+            //** do nothing, core-proxy will send it agian itself */
+            // logger.error(err);
+            // setTimeout(() => {
+            //     coreProxy.sendBackMessage(bank, message.msg , message.id);
+            // }, 1000);    
         }
     }
 }
