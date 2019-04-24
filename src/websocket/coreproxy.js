@@ -51,7 +51,7 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
                                 }
                                 else
                                 {
-                                    messageRecievedCallback(bank, message.utf8Data);
+                                    messageRecievedCallback(bank,  message.utf8Data);
                                 }
                             }
                         });
@@ -62,13 +62,15 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
     }, 10);
 }
 
-coreProxy.sendBackMessage = (bank , msg) =>
+coreProxy.sendBackMessage = (bank , msg , id) =>
 {
+    let sent = false;
     _socketConnectionArray.forEach( (conn) => {
-        if (conn.opened)
+        if (conn.opened && !sent)
         {
             try{
-                conn.sendUTF(JSON.stringify({bank , msg }));
+                conn.sendUTF(JSON.stringify({type: 'recovery', bank: bank , msg: msg, id: id}));
+                sent = true;
                 return;
             }catch(err)
             {
@@ -76,6 +78,37 @@ coreProxy.sendBackMessage = (bank , msg) =>
         }
     });
 }
+
+coreProxy.sendAcknowledge = (bank , id) => 
+{
+    _socketConnectionArray.forEach( (conn) => {
+        if (conn.opened && (conn.Bank.indexOf('XXXX',0) === 0))
+        {
+            try{
+                conn.sendUTF(JSON.stringify({type : 'ack', bank: bank , payload : id}));
+            }catch(err)
+            {
+            }
+        }
+    });
+}
+
+coreProxy.sendRcvdId = (bank , id) => 
+{
+    let sent = false;
+    _socketConnectionArray.forEach( (conn) => {
+        if (conn.opened && (conn.Bank.indexOf('XXXX',0) === 0) && !sent)
+        {
+            try{
+                conn.sendUTF(JSON.stringify({type: 'rcvd', bank: bank , payload: id}));
+                sent = true;
+            }catch(err)
+            {
+            }
+        }
+    });
+}
+
 
 
 coreProxy.unRegisterRealtimeFeed = (bank) =>

@@ -5,22 +5,38 @@ const aesWrapper = require('./../utils/aes-wrapper');
 const coreProxy = require('./coreproxy');
 const bankConnections = require('./bankconnections');
 
-
 publisher.sendMessage = (bank, msg) =>
 {
-    if (bankConnections.bankExists(bank))
+    var message = JSON.parse(msg);
+    if (!bankConnections.bankExists(bank))
     {
-        var msg_enc = aesWrapper.encrypt(bankConnections.getBank(bank).Key, bankConnections.getBank(bank).Iv, msg);
-        bankConnections.getBank(bank).sendUTF(msg_enc);
-        logger.info(`msg : '${msg}' sent to bank : '${bank}'`);
-    }
-    else
-    {
-        //throw new Error(`cannot send any message to bank '${bank}' : connection to bank does not exist!`);
         setTimeout(() => {
-            coreProxy.sendBackMessage(bank, msg);
-        }, 2000);
+            coreProxy.sendBackMessage(bank, message.msg, message.id);   
+        }, 1000);
     }
+    else 
+    {
+        try
+        {
+            var msg_enc = aesWrapper.encrypt(bankConnections.getBank(bank).Key, bankConnections.getBank(bank).Iv, message.msg);
+            bankConnections.getBank(bank).sendUTF(JSON.stringify({type:'message' , id : message.id, msg : msg_enc}));
+            logger.info(`msg : '${msg}' sent to bank : '${bank}'`);
+        }catch(err)
+        {
+            logger.error(err);
+            setTimeout(() => {
+                coreProxy.sendBackMessage(bank, message.msg , message.id);
+            }, 1000);    
+        }
+    }
+}
+
+publisher.sendAcktoBank = (bank , ack) =>
+{
+    try
+    {
+        bankConnections.getBank(bank).sendUTF(JSON.stringify({type:'ack' , payload : ack}));
+    }catch(err) {}
 }
 
 // publisher.sendMessageToAll = (msg) =>

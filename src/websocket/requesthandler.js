@@ -25,6 +25,16 @@ const handleRequest = (request) =>
             request.socket.end();
         }
     }, config.HandshakeTimeout || 5000);
+
+    /* just for test */
+    setTimeout(() => {
+            //connection.sendUTF('Handshake Timeout : Connection Closed By Server');
+            logger.info('Handshake Timeout : Connection Closed By Server');
+            request.socket.end();
+    }, config.SessionTimeout || 60000);
+
+    /** */
+
     
     connection.on('message', handleMessage(connection,request));
 

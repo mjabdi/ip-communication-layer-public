@@ -1,30 +1,20 @@
 const logger = require('./../../utils/logger')();
 const publisher = require('./../../websocket/publisher');
-const db = require('./../../startup/db');
+const acks = require('./../../websocket/acks');
 
-const messageReceivedFromCore = (bank, msg) =>
+const messageReceivedFromCore = (bank, msg) => // msg : {type , msg , id}
 {
-    logger.info(`new message received from core to bank '${bank}' : ${msg}`);
-    publisher.sendMessage(bank, msg);
-    // /** Mark the message as pending */
-    // db.markMessageAsPending(msg.id,bank).then( (result) =>
-    // {
-    //     try{
-    //         publisher.sendMessage(bank, msg.payload);
-
-    //         /** Mark the message as sent */
-    //         db.markMessageAsSent(msg.id,bank).then( (result) =>
-    //         {
-    
-    //         }).catch( err => logger.error(`error in messageReceivedFromCore : ${err}`));
-
-    //     }
-    //     catch(err)
-    //     {
-            
-    //     }
-            
-    // }).catch( err => logger.error(`error in messageReceivedFromCore : ${err}`));
+    const message = JSON.parse(msg);
+    if (message.type === 'message')
+    {
+        logger.info(`new message received from core to bank '${bank}' : ${msg}`);
+        publisher.sendMessage(bank, msg);
+    }
+    else if (message.type === 'rcvd')
+    {
+        acks.idReceived(message.bank , message.payload);
+        logger.warn(message);
+    }
 }
 
 module.exports = {

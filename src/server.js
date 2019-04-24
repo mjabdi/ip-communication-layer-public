@@ -11,6 +11,9 @@ const checkConfig =  require('./startup/config');
 const banks = require('./utils/banks');
 const rsaWrapper = require('./utils/rsa-wrapper');
 const application = require('./utils/application');
+const coreProxy = require('./websocket/coreproxy');
+const messageReceivedFromCore = require('./messageprocessor/coretobanks/index').messageReceivedFromCore;
+
 
 let ready = false;
 
@@ -59,6 +62,16 @@ async function run()
   //** doing all the neccessary things and cleanup procedures before shutdown  */
   application.registerForGracefulShutdown(httpServer,websocketServer);
   //** */
+
+
+  /** register for XXXX bank as a recovery channel to core Proxy */
+  coreProxy.registerRealtimeFeed(`XXXX-${application.hostname()}` , {} , messageReceivedFromCore , () => 
+  {
+    logger.info(`${application.hostname()} subscribed for recovery channel 'XXXX'`);
+  });
+
+  /** */
+
 
   ready = true;
 }

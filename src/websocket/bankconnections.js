@@ -36,7 +36,7 @@ bankConnections.removeConnection = async (bank) =>
 
 bankConnections.bankExists = (bank) =>
 {
-    return _socketConnections.containsKey(bank);
+    return _socketConnections.containsKey(bank) || (bank.indexOf('XXXX',0) === 0);
 }
 
 
