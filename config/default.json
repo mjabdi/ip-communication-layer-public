@@ -1,12 +1,15 @@
 {
-  "LogLevel" : "info",
-  "IPCoreRestAPI": "something",
+  "LogLevel" : "warn",
+  "IPCoreRestAPI": "http://localhost:3002/api/sendtocore",
   "HttpPort" : 3001,
   "WebsocketPort" : 8001,
   "DBHost" : "localhost",
   "DBPort" : 28015,
   "DBName" : "ipcommunication",
-  "HandshakeTimeout" : 10000,
+  "HandshakeTimeout" : 30000,
+  "SessionTimeout" : 60000,
   "ShutdownTimeout" : 5000,
-  "MaxBankConnections" : 1
+  "MaxBankConnections" : 1,
+  "CoreProxyNodes" : 1,
+  "CoreProxyAddress" : "ws://localhost:8000"
 }

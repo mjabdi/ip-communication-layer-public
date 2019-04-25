@@ -9,7 +9,7 @@ module.exports = (app) => {
   app.use(express.json());
   app.use('/health', health);
   app.use('/' , index );
-  app.use('/api' , receiveformcore );
+  // app.use('/api' , receiveformcore );
   //.. add other routes here
   //..
   app.use(error);

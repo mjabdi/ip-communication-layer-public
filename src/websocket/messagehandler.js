@@ -1,11 +1,11 @@
 const logger = require('./../utils/logger')();
 const HandshakeManager = require('./handshakemanager');
-const registerRealtimeMessageFeed = require('./../startup/db').registerRealtimeMessageFeed;
-const processAllNeworPendingMessages = require('./../startup/db').processAllNeworPendingMessages;
 const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index').messageReceivedFromCore;
 const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
-const publisher = require('./publisher');
+const bankconnections = require('./bankconnections');
+const clusterBankConnections = require('./clusterBankConnections');
 const aesWrapper = require('./../utils/aes-wrapper');
+const coreProxy = require('./coreproxy');
 
 const handleMessage = (connection, request) =>
 {
@@ -14,7 +14,7 @@ const handleMessage = (connection, request) =>
         if (message.type === 'utf8') {
             if (!connection.Authenticated)
             {
-                return HandshakeManager(connection,request,message,initializeConnection);
+                return HandshakeManager(connection, request, message, initializeConnection);
             }
             else
             {
@@ -28,24 +28,14 @@ const handleMessage = (connection, request) =>
     }
 }
 
-const initializeConnection = async (bank, socketConnection) =>
+const initializeConnection = (bank, socketConnection) =>
 {
-    try
+    bankconnections.addConnection(bank, socketConnection);
+    coreProxy.publishBankConnection(bank, true);
+    coreProxy.registerRealtimeFeed(bank, socketConnection, messageReceivedFromCore , () =>
     {
-        await publisher.addConnection(bank , socketConnection);
-
-        processAllNeworPendingMessages(bank, socketConnection, messageReceivedFromCore);
-
-        registerRealtimeMessageFeed(bank, socketConnection, messageReceivedFromCore);
-    }
-    catch(err)
-    {
-        logger.error(err);
-        setTimeout(() => {
-            logger.info(`retrying initalize bank '${bank}' connection...`);
-            initializeConnection(bank , socketConnection);
-        }, 1000);
-    }
+        logger.info(`Bank '${bank}' subscribed for message feed from core.`);
+    });
 }
 
 module.exports = {

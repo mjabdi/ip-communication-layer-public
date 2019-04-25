@@ -1,25 +1,30 @@
 const logger = require('./../../utils/logger')();
 const publisher = require('./../../websocket/publisher');
-const db = require('./../../startup/db');
+const acks = require('./../../websocket/acks');
+const clusterBankconnections = require('./../../websocket/clusterbankconnections');
 
-const messageReceivedFromCore = async (bank, msg) =>
+const messageReceivedFromCore = (bank, msg) => // msg : {type , msg , id}
 {
-    logger.info(`new message received from core to bank '${bank}' : ${JSON.stringify(msg)}`);
-    try
+    const message = JSON.parse(msg);
+    if (message.type === 'message')
     {
-        /** Mark the message as pending */
-        await db.markMessageAsPending(msg.id,bank);
-        /***/
-
-        publisher.sendMessage(bank, msg.payload);
-
-        /** Mark the message as sent */
-        await db.markMessageAsSent(msg.id,bank);
-        /***/
+        logger.info(`new message received from core to bank '${bank}' : ${msg}`);
+        publisher.sendMessage(bank, msg);
     }
-    catch(err)
+    else if (message.type === 'rcvd')
     {
-        logger.error(`error in messageReceivedFromCore : ${err}`);
+        acks.idReceived(message.bank , message.payload);
+    }
+    else if (message.type === 'bankconnectionstatus')
+    {
+        if (message.connected)
+        {
+            clusterBankconnections.addConnection(message.bank, message.hostname);
+        }
+        else
+        {
+            clusterBankconnections.removeConnection(message.bank);
+        }
     }
 }
 
