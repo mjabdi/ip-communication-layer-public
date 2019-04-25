@@ -4,6 +4,7 @@ const WebSocketClient = require('websocket').client;
 const config = require('config');
 const logger = require('./../utils/logger')();
 const bankConnections = require('./bankconnections');
+const application = require('./../utils/application');
 
 const _socketConnectionArray = [];
 
@@ -109,7 +110,21 @@ coreProxy.sendRcvdId = (bank , id) =>
     });
 }
 
-
+coreProxy.publishBankConnection = (bank, connected) => 
+{
+    let sent = false;
+    _socketConnectionArray.forEach( (conn) => {
+        if (conn.opened && (conn.Bank.indexOf('XXXX',0) === 0) && !sent)
+        {
+            try{
+                conn.sendUTF(JSON.stringify({type: 'bankconnectionstatus', bank: bank , hostname: application.hostname(), connected: connected}));
+                sent = true;
+            }catch(err)
+            {
+            }
+        }
+    });
+}
 
 coreProxy.unRegisterRealtimeFeed = (bank) =>
 {
@@ -125,7 +140,5 @@ coreProxy.unRegisterRealtimeFeed = (bank) =>
         }
     });
 }
-
-
 
 module.exports = coreProxy;

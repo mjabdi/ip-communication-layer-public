@@ -1,11 +1,9 @@
-const host = require('./../utils/application').hostname();
 const logger = require('./../utils/logger')();
 const banks = require('./../utils/banks');
 const aesWrapper = require('./../utils/aes-wrapper');
 const rsaWrapper = require('./../utils/rsa-wrapper');
 const randomstring = require("randomstring");
-const db = require('./../startup/db');
-const config = require('config');
+const clusterBankConnections = require('./clusterbankconnections');
 
 module.exports = async (connection ,request ,message ,callback) => {
     if (!connection.Bank)
@@ -13,21 +11,19 @@ module.exports = async (connection ,request ,message ,callback) => {
             const bank = message.utf8Data.trim();
             if (!banks.exists(bank))
             {
-                connection.sendUTF('Invalid Bank : Connection Closed By Server');
-                logger.info(`'${bank} : 'Invalid Bank : Connection Closed By Server`);
+                connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Bank : Connection Closed By Server'})); 
+                logger.warn(`'${bank} : 'Invalid Bank : Connection Closed By Server`);
                 request.socket.end();
                 return;
             }
 
-            const counter = await db.getConnectionCounter(bank);
-            if (counter + 1 > config.MaxBankConnections)
+            if (clusterBankConnections.bankExists(bank))
             {
-                connection.sendUTF('Too Many Connections : Connection Closed By Server');
-                logger.info(`'${bank} : 'Too Many Connections : Connection Closed By Server`);
+                connection.sendUTF(JSON.stringify({type: 'error', payload: 'Too Many Connections : Connection Closed By Server'})); 
+                logger.warn(`'${bank} : 'Too Many Connections : Connection Closed By Server`);
                 request.socket.end();
                 return; 
             }
-
 
             connection.Bank = bank;
             connection.Question = randomstring.generate(64);
@@ -56,8 +52,8 @@ module.exports = async (connection ,request ,message ,callback) => {
 
             if (answer !== connection.Question || !verified)
             {
-                connection.sendUTF('Invalid Handshake : Connection Closed By Server');
-                logger.info(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
+                connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Handshake : Connection Closed By Server'})); 
+                logger.wanr(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
                 request.socket.end();
                 return;
             }
@@ -82,7 +78,7 @@ module.exports = async (connection ,request ,message ,callback) => {
         }
         catch(err)
         {
-            connection.sendUTF('Invalid Handshake : Connection Closed By Server');
+            connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Handshake : Connection Closed By Server'})); 
             logger.warn(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
             request.socket.end();
             return;

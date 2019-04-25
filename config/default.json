@@ -7,7 +7,7 @@
   "DBPort" : 28015,
   "DBName" : "ipcommunication",
   "HandshakeTimeout" : 30000,
-  "SessionTimeout" : 5000,
+  "SessionTimeout" : 60000,
   "ShutdownTimeout" : 5000,
   "MaxBankConnections" : 1,
   "CoreProxyNodes" : 1,

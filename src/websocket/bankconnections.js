@@ -1,44 +1,33 @@
 const bankConnections = {};
 
 const SimpleHashTable = require('simple-hashtable');
-const db = require('./../startup/db');
 
 const _socketConnections = new SimpleHashTable();
 
-bankConnections.addConnection = (bank ,connection) =>
+bankConnections.addConnection = (bank, connection) =>
 {
-    return new Promise( (resolve, reject) =>
+    if (_socketConnections.containsKey(bank))
     {
-        if (_socketConnections.containsKey(bank))
-        {
-            reject(new Error(`Bank ${bank} already has a connection!`));
-        }
-        else
-        {
-            _socketConnections.put(bank ,connection);
-             db.incrementConnectionCounter(bank).then( (result) => 
-             {
-                resolve();
-             });
-        }
-    });
+        throw new Error(`Bank ${bank} already has a connection!`);
+    }
+    else
+    {
+        _socketConnections.put(bank, connection);
+    }
 }
 
-bankConnections.removeConnection = async (bank) =>
+bankConnections.removeConnection = (bank) =>
 {
     if (_socketConnections.containsKey(bank))
     {
         _socketConnections.remove(bank);
     }
-    
-    await db.decrementConnectionCounter(bank);
 }
 
 bankConnections.bankExists = (bank) =>
 {
     return _socketConnections.containsKey(bank) || (bank.indexOf('XXXX',0) === 0);
 }
-
 
 bankConnections.getBank = (bank) =>
 {

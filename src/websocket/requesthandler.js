@@ -20,21 +20,21 @@ const handleRequest = (request) =>
     setTimeout(() => {
         if (!connection.Authenticated)
         {
-            connection.sendUTF('Handshake Timeout : Connection Closed By Server');
-            logger.info('Handshake Timeout : Connection Closed By Server');
+            connection.sendUTF(JSON.stringify({type: 'error', payload: 'Handshake Timeout : Connection Closed By Server'})); 
+            logger.warn('Handshake Timeout : Connection Closed By Server');
             request.socket.end();
         }
     }, config.HandshakeTimeout || 5000);
 
-    /* just for test */
+    /* session timeout */
     setTimeout(() => {
-            //connection.sendUTF('Handshake Timeout : Connection Closed By Server');
-            logger.info('Handshake Timeout : Connection Closed By Server');
+        try{
+            connection.sendUTF(JSON.stringify({type: 'info', payload: 'Session Timeout : Connection Closed By Server'})); 
+            logger.info('Session Timeout : Connection Closed By Server');
             request.socket.end();
+        }catch(err) {}
     }, config.SessionTimeout || 60000);
-
     /** */
-
     
     connection.on('message', handleMessage(connection,request));
 
@@ -42,7 +42,8 @@ const handleRequest = (request) =>
         if (connection.Bank)
         {
             logger.info(' Bank ' + connection.Bank + ' disconnected.');
-            await bankconnections.removeConnection(connection.Bank);
+            bankconnections.removeConnection(connection.Bank);
+            coreProxy.publishBankConnection(connection.Bank, false);
             coreProxy.unRegisterRealtimeFeed(connection.Bank);
             logger.info(`Bank '${connection.Bank}' message feed unsubscribed.`);
         }

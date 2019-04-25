@@ -1,10 +1,9 @@
 const logger = require('./../utils/logger')();
 const HandshakeManager = require('./handshakemanager');
-const registerRealtimeMessageFeed = require('./../startup/db').registerRealtimeMessageFeed;
-const processAllNeworPendingMessages = require('./../startup/db').processAllNeworPendingMessages;
 const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index').messageReceivedFromCore;
 const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
 const bankconnections = require('./bankconnections');
+const clusterBankConnections = require('./clusterBankConnections');
 const aesWrapper = require('./../utils/aes-wrapper');
 const coreProxy = require('./coreproxy');
 
@@ -31,12 +30,11 @@ const handleMessage = (connection, request) =>
 
 const initializeConnection = (bank, socketConnection) =>
 {
-    bankconnections.addConnection(bank, socketConnection).then( () =>
+    bankconnections.addConnection(bank, socketConnection);
+    coreProxy.publishBankConnection(bank, true);
+    coreProxy.registerRealtimeFeed(bank, socketConnection, messageReceivedFromCore , () =>
     {
-        coreProxy.registerRealtimeFeed(bank, socketConnection, messageReceivedFromCore , () =>
-        {
-            logger.info(`Bank '${bank}' subscribed for message feed from core.`);
-        });
+        logger.info(`Bank '${bank}' subscribed for message feed from core.`);
     });
 }
 

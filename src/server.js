@@ -6,7 +6,6 @@ const express = require('express');
 const app = express();
 const logger = require('./utils/logger')();
 const websocketServer = require('./websocket/websocketserver');
-const db =  require('./startup/db');
 const checkConfig =  require('./startup/config');
 const banks = require('./utils/banks');
 const rsaWrapper = require('./utils/rsa-wrapper');
@@ -23,13 +22,8 @@ async function run()
   application.registerGlobalErrorHandler();
   //** */
 
-
   //** checking for required configs */
   checkConfig();
-  //** */
-
-  //** initialize Database */
-  await db.initDB();
   //** */
 
   //** initialize Banks */
