@@ -1,7 +1,6 @@
 const clusterBankConnections = {};
 
 const SimpleHashTable = require('simple-hashtable');
-const coreProxy = require('./coreproxy');
 
 const _socketConnections = new SimpleHashTable();
 

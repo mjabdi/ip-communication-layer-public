@@ -8,10 +8,8 @@ module.exports = () => {
         'IPCoreRestAPI',
         'HttpPort',
         'WebsocketPort',
-        'DBHost',
-        'DBPort',
-        'DBName',
-        'CoreProxyNodes'
+        'CoreProxyNodes',
+        'CoreProxyAddress'
     ];
 
     let error = false;

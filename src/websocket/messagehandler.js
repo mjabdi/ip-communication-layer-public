@@ -3,7 +3,6 @@ const HandshakeManager = require('./handshakemanager');
 const messageReceivedFromCore = require('./../messageprocessor/coretobanks/index').messageReceivedFromCore;
 const messageReceivedFromBank = require('./../messageprocessor/bankstocore/index').messageReceivedFromBank;
 const bankconnections = require('./bankconnections');
-const clusterBankConnections = require('./clusterBankConnections');
 const aesWrapper = require('./../utils/aes-wrapper');
 const coreProxy = require('./coreproxy');
 

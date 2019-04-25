@@ -3,13 +3,9 @@
   "LogLevel" : "LOG_LEVEL",
   "HttpPort" : "HTTP_PORT",
   "WebsocketPort" : "WEBSOCKET_PORT",
-  "DBHost" : "DBHOST",
-  "DBPort" : "DBPORT",
-  "DBName" : "DBNAME",
   "HandshakeTimeout" : "HANDSHAKE_TIMEOUT",
   "SessionTimeout" : "SESSION_TIMEOUT",
   "ShutdownTimeout" : "SHUTDOWN_TIMEOUT",
-  "MaxBankConnections" : "MAX_BANK_CONNECTIONS",
   "CoreProxyNodes" : "CORE_PROXY_NODES",
   "CoreProxyAddress" : "CORE_PROXY_ADDRESS"
 }
