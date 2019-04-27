@@ -29,6 +29,11 @@ bankConnections.bankExists = (bank) =>
     return _socketConnections.containsKey(bank) || (bank.indexOf('XXXX',0) === 0);
 }
 
+bankConnections.bankConnected = (bank) =>
+{
+    return _socketConnections.containsKey(bank) && _socketConnections.get(bank).connected;
+}
+
 bankConnections.getBank = (bank) =>
 {
     return _socketConnections.get(bank);

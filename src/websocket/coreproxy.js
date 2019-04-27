@@ -63,22 +63,22 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
     }, 10);
 }
 
-coreProxy.sendBackMessage = (bank , msg , id) =>
-{
-    let sent = false;
-    _socketConnectionArray.forEach( (conn) => {
-        if (conn.opened && !sent)
-        {
-            try{
-                conn.sendUTF(JSON.stringify({type: 'recovery', bank: bank , msg: msg, id: id}));
-                sent = true;
-                return;
-            }catch(err)
-            {
-            }
-        }
-    });
-}
+// coreProxy.sendBackMessage = (bank , msg , id) =>
+// {
+//     let sent = false;
+//     _socketConnectionArray.forEach( (conn) => {
+//         if (conn.opened && !sent)
+//         {
+//             try{
+//                 conn.sendUTF(JSON.stringify({type: 'recovery', bank: bank , msg: msg, id: id}));
+//                 sent = true;
+//                 return;
+//             }catch(err)
+//             {
+//             }
+//         }
+//     });
+// }
 
 coreProxy.sendAcknowledge = (bank , id) => 
 {

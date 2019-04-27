@@ -8,7 +8,7 @@ const bankConnections = require('./bankconnections');
 publisher.sendMessage = (bank, msg) =>
 {
     var message = JSON.parse(msg);
-    if (!bankConnections.bankExists(bank))
+    if (!bankConnections.bankConnected(bank))
     {
         //** do nothing, core-proxy will send it agian itself */
         // setTimeout(() => {
