@@ -13,7 +13,7 @@ module.exports = async (connection, message, callback) => {
             {
                 connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Bank : Connection Closed By Server'})); 
                 logger.warn(`'${bank} : 'Invalid Bank : Connection Closed By Server`);
-                connection.close();
+                connection.drop();
                 return;
             }
 
@@ -21,7 +21,7 @@ module.exports = async (connection, message, callback) => {
             {
                 connection.sendUTF(JSON.stringify({type: 'error', payload: 'Too Many Connections : Connection Closed By Server'})); 
                 logger.warn(`'${bank} : 'Too Many Connections : Connection Closed By Server`);
-                connection.close();
+                connection.drop();
                 return; 
             }
 
@@ -54,7 +54,7 @@ module.exports = async (connection, message, callback) => {
             {
                 connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Handshake : Connection Closed By Server'})); 
                 logger.wanr(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
-                connection.close();
+                connection.drop();
                 return;
             }
 
@@ -80,7 +80,7 @@ module.exports = async (connection, message, callback) => {
         {
             connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Handshake : Connection Closed By Server'})); 
             logger.warn(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
-            connection.close();
+            connection.drop();
             return;
         }
     }
