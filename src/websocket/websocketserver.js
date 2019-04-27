@@ -33,8 +33,9 @@ WSSModule.start = () => {
 }
 
 WSSModule.close = (callback) => {
-    WSSModule.server.close(callback);
     WSSModule.wsServer.closeAllConnections();
+    WSSModule.wsServer.shutDown();
+    WSSModule.server.close(callback);
 }
 
 

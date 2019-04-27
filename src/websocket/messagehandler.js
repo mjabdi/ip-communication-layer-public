@@ -6,14 +6,14 @@ const bankconnections = require('./bankconnections');
 const aesWrapper = require('./../utils/aes-wrapper');
 const coreProxy = require('./coreproxy');
 
-const handleMessage = (connection, request) =>
+const handleMessage = (connection) =>
 {
     return (message) =>
     {
         if (message.type === 'utf8') {
             if (!connection.Authenticated)
             {
-                return HandshakeManager(connection, request, message, initializeConnection);
+                return HandshakeManager(connection, message, initializeConnection);
             }
             else
             {
@@ -22,7 +22,7 @@ const handleMessage = (connection, request) =>
         }
         else if (message.type === 'binary') {
             connection.sendUTF('Invalid Format : Connection Closed By Server');
-            request.socket.end();
+            connection.close();
         }
     }
 }

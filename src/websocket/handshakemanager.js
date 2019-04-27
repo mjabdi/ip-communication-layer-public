@@ -5,7 +5,7 @@ const rsaWrapper = require('./../utils/rsa-wrapper');
 const randomstring = require("randomstring");
 const clusterBankConnections = require('./clusterbankconnections');
 
-module.exports = async (connection ,request ,message ,callback) => {
+module.exports = async (connection, message, callback) => {
     if (!connection.Bank)
         {
             const bank = message.utf8Data.trim();
@@ -13,7 +13,7 @@ module.exports = async (connection ,request ,message ,callback) => {
             {
                 connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Bank : Connection Closed By Server'})); 
                 logger.warn(`'${bank} : 'Invalid Bank : Connection Closed By Server`);
-                request.socket.end();
+                connection.close();
                 return;
             }
 
@@ -21,7 +21,7 @@ module.exports = async (connection ,request ,message ,callback) => {
             {
                 connection.sendUTF(JSON.stringify({type: 'error', payload: 'Too Many Connections : Connection Closed By Server'})); 
                 logger.warn(`'${bank} : 'Too Many Connections : Connection Closed By Server`);
-                request.socket.end();
+                connection.close();
                 return; 
             }
 
@@ -54,7 +54,7 @@ module.exports = async (connection ,request ,message ,callback) => {
             {
                 connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Handshake : Connection Closed By Server'})); 
                 logger.wanr(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
-                request.socket.end();
+                connection.close();
                 return;
             }
 
@@ -80,7 +80,7 @@ module.exports = async (connection ,request ,message ,callback) => {
         {
             connection.sendUTF(JSON.stringify({type: 'error', payload: 'Invalid Handshake : Connection Closed By Server'})); 
             logger.warn(`'${connection.Bank}' : Invalid Handshake : Connection Closed By Server`);
-            request.socket.end();
+            connection.close();
             return;
         }
     }

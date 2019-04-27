@@ -29,7 +29,7 @@ coreProxy.registerRealtimeFeed = (bank, socketConnection, messageRecievedCallbac
                                 socketConnection.proxyConnectionsCount --;
                                 if (bankConnections.bankExists(bank))
                                 {
-                                    logger.warn(`bank '${bank}' one connection to core-proxy closed! : ${socketConnection.proxyConnectionsCount}/${config.CoreProxyNodes} connections available`);
+                                    logger.warn(`bank '${bank}' a connection to core-proxy closed! : ${socketConnection.proxyConnectionsCount}/${config.CoreProxyNodes} connections available`);
                                 }
                             }
                         });

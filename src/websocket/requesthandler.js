@@ -21,7 +21,7 @@ const handleRequest = (request) =>
         {
             connection.sendUTF(JSON.stringify({type: 'error', payload: 'Handshake Timeout : Connection Closed By Server'})); 
             logger.warn('Handshake Timeout : Connection Closed By Server');
-            request.socket.end();
+            connection.close();
         }
     }, config.HandshakeTimeout || 5000);
 
@@ -30,12 +30,12 @@ const handleRequest = (request) =>
         try{
             connection.sendUTF(JSON.stringify({type: 'info', payload: 'Session Timeout : Connection Closed By Server'})); 
             logger.info('Session Timeout : Connection Closed By Server');
-            request.socket.end();
+            connection.close();
         }catch(err) {}
     }, config.SessionTimeout || 60000);
     /** */
     
-    connection.on('message', handleMessage(connection,request));
+    connection.on('message', handleMessage(connection));
 
     connection.on('close', async (reasonCode, description) => {
         if (connection.Bank)
