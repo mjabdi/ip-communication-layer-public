@@ -21,7 +21,7 @@ const handleRequest = (request) =>
         {
             connection.sendUTF(JSON.stringify({type: 'error', payload: 'Handshake Timeout : Connection Closed By Server'})); 
             logger.warn('Handshake Timeout : Connection Closed By Server');
-            connection.close();
+            connection.drop();
         }
     }, config.HandshakeTimeout || 5000);
 
@@ -30,7 +30,7 @@ const handleRequest = (request) =>
         try{
             connection.sendUTF(JSON.stringify({type: 'info', payload: 'Session Timeout : Connection Closed By Server'})); 
             logger.info('Session Timeout : Connection Closed By Server');
-            connection.close();
+            connection.drop();
         }catch(err) {}
     }, config.SessionTimeout || 60000);
     /** */

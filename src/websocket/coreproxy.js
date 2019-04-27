@@ -132,7 +132,7 @@ coreProxy.unRegisterRealtimeFeed = (bank) =>
         if (conn.Bank === bank && conn.opened)
         {
             try{
-                conn.close();
+                conn.drop();
             }catch(err)
             {
                 logger.error(err);
