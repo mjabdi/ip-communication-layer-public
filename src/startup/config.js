@@ -9,7 +9,10 @@ module.exports = () => {
         'HttpPort',
         'WebsocketPort',
         'CoreProxyNodes',
-        'CoreProxyAddress'
+        'CoreProxyAddress',
+        'RedisHost',
+        'RedisPort',
+        'RedisPass'
     ];
 
     let error = false;
