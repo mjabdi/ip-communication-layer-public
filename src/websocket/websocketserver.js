@@ -23,7 +23,7 @@ WSSModule.start = () => {
     // });
 
     io.attach(websocketServer);
-    // io.adapter(redisAdapter);
+    //io.adapter(redisAdapter);
 
     socketAuth(io, connectionManager);
       
