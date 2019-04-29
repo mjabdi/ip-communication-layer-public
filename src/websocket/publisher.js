@@ -6,9 +6,9 @@ const aesWrapper = require('./../utils/aes-wrapper');
 const bankConnections = require('./bankconnections');
 const redis = require('./../utils/redis');
 
-const io = require('socket.io-emitter')('redis', {
-    port: config.RedisPort,
-    host: config.RedisHost,
+const io = require('socket.io-emitter')(`redis://${config.RedisHost}:${config.RedisPort}`, {
+    // host: config.RedisHost,
+    // port: config.RedisPort,
     password: config.RedisPass
   });
 
