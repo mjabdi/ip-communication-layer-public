@@ -5,8 +5,9 @@ const logger = require('./../utils/logger')();
 const http = require('http');
 const io = require('socket.io')();
 const socketAuth = require('socketio-auth');
-const adapter = require('socket.io-redis');
+const redisAdapter = require('socket.io-redis');
 const connectionManager = require('./connectionmanager');
+const redis = require('redis');
 
 WSSModule.start = () => {
     const wsPort = config.WebsocketPort;
@@ -16,14 +17,12 @@ WSSModule.start = () => {
         response.end();
     });
 
-    // const redisAdapter = adapter({
-    //     host: config.RedisHost,
-    //     port: config.RedisPort,
-    //     password: config.REDIS_PASS
-    // });
+    const pub = redis.createClient(config.RedisPort, config.RedisHost, { auth_pass: config.RedisPass });
+    const sub = redis.createClient(config.RedisPort, config.RedisHost, { auth_pass: config.RedisPass });
 
     io.attach(websocketServer);
-    //io.adapter(redisAdapter);
+    io.adapter(redisAdapter({ pubClient: pub, subClient: sub }));
+
 
     socketAuth(io, connectionManager);
       
