@@ -1,12 +1,23 @@
+
 const bluebird = require('bluebird');
 const redis = require('redis');
 const config = require('config');
 
 bluebird.promisifyAll(redis);
 
-const client = redis.createClient(config.RedisPort,{
-  host: config.RedisHost,  
-  password: config.RedisPass
-});
+let _client = null;
 
-module.exports = client;
+function getClient()
+{
+    if (!_client)
+    {
+        _client = redis.createClient(config.RedisPort,{
+            host: config.RedisHost,  
+            password: config.RedisPass
+          });
+    }
+    return _client;
+}
+
+
+module.exports = { client : getClient };
