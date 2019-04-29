@@ -16,14 +16,14 @@ WSSModule.start = () => {
         response.end();
     });
 
-    const redisAdapter = adapter({
-        host: config.RedisHost,
-        port: config.RedisPort,
-        password: config.REDIS_PASS
-    });
+    // const redisAdapter = adapter({
+    //     host: config.RedisHost,
+    //     port: config.RedisPort,
+    //     password: config.REDIS_PASS
+    // });
 
     io.attach(websocketServer);
-    io.adapter(redisAdapter);
+    // io.adapter(redisAdapter);
 
     socketAuth(io, connectionManager);
       
