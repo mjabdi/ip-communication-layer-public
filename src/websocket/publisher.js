@@ -6,7 +6,7 @@ const aesWrapper = require('./../utils/aes-wrapper');
 const bankConnections = require('./bankconnections');
 const redis = require('./../utils/redis');
 
-const io = require('socket.io-emitter')({
+const io = require('socket.io-emitter')('redis', {
     port: config.RedisPort,
     host: config.RedisHost,
     password: config.RedisPass
