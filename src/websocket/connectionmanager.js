@@ -15,7 +15,7 @@ connectionManager.authenticate = async (socket, data, callback) => {
     try {
       logger.info(`bank '${bank} trying to connect...'`);  
       await verifyBank(bank);
-      const canConnect = await redis
+      const canConnect = await redis.client()
         .setAsync(`banks:${bank}`, JSON.stringify({ id: socket.id, host: application.hostname() }), 'NX', 'EX', 30);
 
       if (!canConnect) {
@@ -45,7 +45,7 @@ connectionManager.postAuthenticate = async (socket) => {
 
     socket.conn.on('packet', async (packet) => {
         if (socket.auth && packet.type === 'ping') {
-            await redis.setAsync(`banks:${socket.Bank}`, JSON.stringify({ id: socket.id, host: application.hostname() }), 'XX', 'EX', 30);
+            await redis.client().setAsync(`banks:${socket.Bank}`, JSON.stringify({ id: socket.id, host: application.hostname() }), 'XX', 'EX', 30);
         }
     });
 
