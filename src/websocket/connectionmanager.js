@@ -123,7 +123,7 @@ connectionManager.disconnect = async (socket) => {
     else
     {
       logger.info(`Bank ${socket.Bank} disconnected.`);
-      await redis.delAsync(`banks:${socket.Bank}`);
+      await redis.client().delAsync(`banks:${socket.Bank}`);
     }
 }
 
