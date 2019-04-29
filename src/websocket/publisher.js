@@ -6,13 +6,12 @@ const aesWrapper = require('./../utils/aes-wrapper');
 const bankConnections = require('./bankconnections');
 const redis = require('./../utils/redis');
 
-// const io = require('socket.io-emitter')({
-//     host: config.RedisHost,
-//     port: config.RedisPort,
-//     password: config.RedisPass
-//   });
+const io = require('socket.io-emitter')({
+    port: config.RedisPort,
+    host: config.RedisHost,
+    password: config.RedisPass
+  });
 
-const io = require('socket.io-emitter')(redis.client);
 
 publisher.sendMessage = async (bank, msg) =>
 {
