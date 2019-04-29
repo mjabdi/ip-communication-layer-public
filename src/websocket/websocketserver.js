@@ -17,8 +17,14 @@ WSSModule.start = () => {
         response.end();
     });
 
-    const pub = redis.createClient(config.RedisPort, config.RedisHost, { auth_pass: config.RedisPass });
-    const sub = redis.createClient(config.RedisPort, config.RedisHost, { auth_pass: config.RedisPass });
+    const pub = redis.createClient(config.RedisPort,{
+        host: config.RedisHost,  
+        password: config.RedisPass
+      });
+    const sub = redis.createClient(config.RedisPort,{
+        host: config.RedisHost,  
+        password: config.RedisPass
+      });
 
     io.attach(websocketServer);
     io.adapter(redisAdapter({ pubClient: pub, subClient: sub }));
