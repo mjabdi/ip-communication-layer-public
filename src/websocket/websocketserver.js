@@ -19,7 +19,7 @@ WSSModule.start = () => {
     const redisAdapter = adapter({
         host: config.RedisHost,
         port: config.RedisPort,
-        password: process.env.REDIS_PASS
+        password: config.REDIS_PASS
     });
 
     io.attach(websocketServer);
