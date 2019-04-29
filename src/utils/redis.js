@@ -4,10 +4,8 @@ const config = require('config');
 
 bluebird.promisifyAll(redis);
 
-const client = redis.createClient({
+const client = redis.createClient(config.RedisPort, config.RedisHost, {
   protocol: 'redis',  
-  host: config.RedisHost,
-  port: config.RedisPort,
   password: config.RedisPass
 });
 
