@@ -1,5 +1,5 @@
 const WSSModule = {};
-
+const bluebird = require('bluebird');
 const config = require('config');
 const logger = require('./../utils/logger')();
 const http = require('http');
@@ -8,6 +8,8 @@ const socketAuth = require('socketio-auth');
 const redisAdapter = require('socket.io-redis');
 const connectionManager = require('./connectionmanager');
 const redis = require('redis');
+
+bluebird.promisifyAll(redis);
 
 WSSModule.start = () => {
     const wsPort = config.WebsocketPort;
