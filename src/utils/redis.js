@@ -5,9 +5,10 @@ const config = require('config');
 bluebird.promisifyAll(redis);
 
 const client = redis.createClient({
-  host: config.RedisHost|| 'localhost',
-  port: config.RedisPort || 6379,
-  password: config.RedisPass || 'password',
+  protocol: 'redis',  
+  host: config.RedisHost,
+  port: config.RedisPort,
+  password: config.RedisPass
 });
 
 module.exports = client;
