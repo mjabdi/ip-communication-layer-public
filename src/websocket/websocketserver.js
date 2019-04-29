@@ -7,9 +7,7 @@ const io = require('socket.io')();
 const socketAuth = require('socketio-auth');
 const redisAdapter = require('socket.io-redis');
 const connectionManager = require('./connectionmanager');
-const redis = require('redis');
-
-bluebird.promisifyAll(redis);
+const redis = require('./../utils/redis');
 
 WSSModule.start = () => {
     const wsPort = config.WebsocketPort;
@@ -19,14 +17,8 @@ WSSModule.start = () => {
         response.end();
     });
 
-    const pub = redis.createClient(config.RedisPort,{
-        host: config.RedisHost,  
-        password: config.RedisPass
-      });
-    const sub = redis.createClient(config.RedisPort,{
-        host: config.RedisHost,  
-        password: config.RedisPass
-      });
+    const pub = redis.newClient();
+    const sub = redis.newClient();
 
     io.attach(websocketServer);
     io.adapter(redisAdapter({ pubClient: pub, subClient: sub }));

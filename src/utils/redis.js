@@ -19,5 +19,13 @@ function getClient()
     return _client;
 }
 
+function getNewClient()
+{
+    return redis.createClient(config.RedisPort,{
+        host: config.RedisHost,  
+        password: config.RedisPass
+      });
+}
 
-module.exports = { client : getClient };
+
+module.exports = { client : getClient , newClient : getNewClient};

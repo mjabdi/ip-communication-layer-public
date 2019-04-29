@@ -12,7 +12,7 @@ const io = require('socket.io-emitter')(redis.client());
 
 publisher.sendMessage = async (bank, msg) =>
 {
-    var conn = await redis.getAsync(`banks:${bank}`);
+    var conn = await redis.client().getAsync(`banks:${bank}`);
     if (conn != null)
     {
         var socket_id = JSON.parse(conn).id;
@@ -24,7 +24,7 @@ publisher.sendMessage = async (bank, msg) =>
         var count = 0;
         var timer = setInterval(async () => { 
             count++; 
-            conn = await redis.getAsync(`banks:${bank}`);
+            conn = await redis.client().getAsync(`banks:${bank}`);
             if (conn != null)
             {
                 socket_id = JSON.parse(conn).id;
