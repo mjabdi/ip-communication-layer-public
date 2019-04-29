@@ -6,7 +6,7 @@ const aesWrapper = require('./../utils/aes-wrapper');
 const bankConnections = require('./bankconnections');
 const redis = require('./../utils/redis');
 
-const io = require('socket.io-emitter')(`redis://user:${config.password}@${config.RedisHost}:${config.RedisPort}`);
+const io = require('socket.io-emitter')(`redis://user:${config.RedisPass}@${config.RedisHost}:${config.RedisPort}`);
 
 
 publisher.sendMessage = async (bank, msg) =>
