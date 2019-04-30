@@ -6,8 +6,8 @@ const aesWrapper = require('./../utils/aes-wrapper');
 const rsaWrapper = require('./../utils/rsa-wrapper');
 const randomstring = require("randomstring");
 const application = require('./../utils/application');
-const publisher = require('./publisher');
 const config = require('config');
+const messageReceivedFromBank = require('./../messageprocessor/bankstocore').messageReceivedFromBank;
 
 connectionManager.authenticate = async (socket, data, callback) => {
     const { bank } = data;
@@ -95,8 +95,6 @@ connectionManager.postAuthenticate = async (socket) => {
         }
     });
 
-
-
     socket.on('message', async (data , ack) =>
     {
         if (!socket.Authenticated)
@@ -106,9 +104,7 @@ connectionManager.postAuthenticate = async (socket) => {
         }
         else
         {
-            logger.info(`message received from bank '${socket.Bank}' : ${JSON.stringify(data)}`);
-            await publisher.sendMessage(data.receiver, data.message);
-            ack(data);
+            messageReceivedFromBank(socket.Bank,data,ack)
         }
     });
 
