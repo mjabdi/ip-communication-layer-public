@@ -5,7 +5,6 @@ const request = require('requestretry');
 const messageReceivedFromBank = (bank, msg, ack) =>
 {
     logger.info(`message received from bank '${bank}': ${msg}`);
-    var message =  msg;
 
     request({
         url: config.IPCoreRestAPI,
@@ -13,8 +12,8 @@ const messageReceivedFromBank = (bank, msg, ack) =>
         method : 'POST',
         body : {
             sender : bank,
-            receiver : message.receiver,
-            payload : message.payload
+            receiver : msg.receiver,
+            payload : msg.payload
         },
         // The below parameters are specific to request-retry
         maxAttempts: 10,   // (default) try 5 times

@@ -1,9 +1,9 @@
 const logger = require('./../../utils/logger')();
 const publisher = require('./../../websocket/publisher');
 
-const messageReceivedFromCore = (bank, msg) => // msg : {type , msg , id}
+const messageReceivedFromCore = (bank, msg) => 
 {
-    publisher.sendMessage(bank, msg);
+    publisher.sendMessage(bank, {payload: msg});
 }
 
 module.exports = {
