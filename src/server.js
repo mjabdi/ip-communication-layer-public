@@ -49,10 +49,10 @@ async function run()
 
 
   /** register for XXXX bank as a recovery channel to core Proxy */
-  coreProxy.registerRealtimeFeed(`XXXX-${application.hostname()}` , {} , messageReceivedFromCore , () => 
-  {
-    logger.info(`${application.hostname()} subscribed for recovery channel 'XXXX'`);
-  });
+  // coreProxy.registerRealtimeFeed(`XXXX-${application.hostname()}` , {} , messageReceivedFromCore , () => 
+  // {
+  //   logger.info(`${application.hostname()} subscribed for recovery channel 'XXXX'`);
+  // });
 
   /** */
 
