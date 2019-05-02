@@ -1,5 +1,4 @@
 const WSSModule = {};
-const bluebird = require('bluebird');
 const config = require('config');
 const logger = require('./../utils/logger')();
 const http = require('http');
@@ -23,11 +22,13 @@ WSSModule.start = () => {
     io.attach(websocketServer);
     io.adapter(redisAdapter({ pubClient: pub, subClient: sub }));
 
-
     socketAuth(io, connectionManager);
       
     websocketServer.listen(wsPort , () =>
-    {logger.info(`WebSocket server started listening on port : ${wsPort}`);});
+    {
+      logger.info(`WebSocket server started listening on port : ${wsPort}`);
+      console.log(`WebSocket server started listening on port : ${wsPort}`);
+    });
 }
 
 WSSModule.close = (callback) => {

@@ -1,5 +1,5 @@
 const aesWrapper = {};
-
+const logger = require('./logger')();
 const crypto = require('crypto');
 
 // get list of supportable encryption algorithms
@@ -19,7 +19,7 @@ aesWrapper.encrypt = (key, iv, text) => {
     try
     {
         let encrypted = '';
-        let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+        let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'base64'), Buffer.from(iv, 'base64'));
         encrypted += cipher.update(Buffer.from(text), 'utf8', 'base64');
         encrypted += cipher.final('base64');
 

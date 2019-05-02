@@ -1,9 +1,7 @@
 const publisher = {};
 
-const config = require('config');
 const logger = require('./../utils/logger')();
 const aesWrapper = require('./../utils/aes-wrapper');
-const bankConnections = require('./bankconnections');
 const redis = require('./../utils/redis');
 
 const io = require('socket.io-emitter')(redis.client());
@@ -13,8 +11,9 @@ publisher.sendMessage = async (bank, msg) =>
     var conn = await redis.client().getAsync(`banks:${bank}`);
     if (conn != null)
     {
+        const msg_enc = aesWrapper.encrypt(JSON.parse(conn).key, JSON.parse(conn).iv, JSON.stringify(msg));
         var socket_id = JSON.parse(conn).id;
-        io.to(socket_id).emit('message' , msg);
+        io.to(socket_id).emit('message' , msg_enc);
         logger.info(`sending ${JSON.stringify(msg)} to ${bank}`);
     }else
     {
@@ -24,8 +23,9 @@ publisher.sendMessage = async (bank, msg) =>
             conn = await redis.client().getAsync(`banks:${bank}`);
             if (conn != null)
             {
+                const msg_enc = aesWrapper.encrypt(JSON.parse(conn).key, JSON.parse(conn).iv, JSON.stringify(msg));
                 socket_id = JSON.parse(conn).id;
-                io.to(socket_id).emit('message' , msg);
+                io.to(socket_id).emit('message' , msg_enc);
                 logger.info(`sending ${JSON.stringify(msg)} to ${bank}`);
                 clearInterval(timer); 
             }

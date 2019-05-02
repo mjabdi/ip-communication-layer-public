@@ -2,9 +2,9 @@ const logger = require('./../../utils/logger')();
 const config = require('config');
 const request = require('requestretry');
 
-const messageReceivedFromBank = (bank, msg, ack) =>
+const messageReceivedFromBank = (bank, msg, data, ack) =>
 {
-    logger.info(`message received from bank '${bank}': ${msg}`);
+    logger.info(`message received from bank '${bank}': ${JSON.stringify(msg)}`);
 
     request({
         url: config.IPCoreRestAPI,
@@ -25,7 +25,7 @@ const messageReceivedFromBank = (bank, msg, ack) =>
         {
             logger.error(`could not call Core API : error : ${err}`);
         } else if (response) {
-            ack(msg);
+            ack(data);
             if (response.attempts > 1)
             {
                 logger.warn('The number of request attempts: ' + response.attempts);

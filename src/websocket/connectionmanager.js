@@ -15,8 +15,10 @@ connectionManager.authenticate = async (socket, data, callback) => {
     try {
       logger.info(`bank '${bank} trying to connect...'`);  
       await verifyBank(bank);
+      socket.Key = 'null';
+      socket.Iv = 'null';
       const canConnect = await redis.client()
-        .setAsync(`banks:${bank}`, JSON.stringify({ id: socket.id, host: application.hostname() }), 'NX', 'EX', 30);
+        .setAsync(`banks:${bank}`, JSON.stringify({ id: socket.id, host: application.hostname(), key: socket.Key.toString('base64'), iv: socket.Iv.toString('base64') }), 'NX', 'EX', 30);
 
       if (!canConnect) {
         return callback({ message: 'ALREADY_LOGGED_IN' });
@@ -43,13 +45,20 @@ connectionManager.postAuthenticate = async (socket) => {
 
     socket.emit('handshake' , { question: question_enc, signature: signature });
 
+    setTimeout(() => {
+        if (!socket.Authenticated)
+        {
+            socket.disconnect();
+        }
+    }, config.HandshakeTimeout || (10 * 1000));
+
     socket.conn.on('packet', async (packet) => {
         if (socket.auth && packet.type === 'ping') {
-            await redis.client().setAsync(`banks:${socket.Bank}`, JSON.stringify({ id: socket.id, host: application.hostname() }), 'XX', 'EX', 30);
+            await redis.client().setAsync(`banks:${socket.Bank}`, JSON.stringify({ id: socket.id, host: application.hostname(), key: socket.Key.toString('base64'), iv: socket.Iv.toString('base64') }), 'XX', 'EX', 30);
         }
     });
 
-    socket.on('handshake', (data) =>
+    socket.on('handshake', async (data) =>
     {
         if (socket.Authenticated)
         {
@@ -86,16 +95,18 @@ connectionManager.postAuthenticate = async (socket) => {
                 signature_iv : signature_iv
             }
 
+            await redis.client().setAsync(`banks:${socket.Bank}`, JSON.stringify({ id: socket.id, host: application.hostname(), key: socket.Key.toString('base64'), iv: socket.Iv.toString('base64') }), 'XX', 'EX', 30);
+
             socket.emit('authorized', send_msg);
             logger.info(`Bank ${socket.Bank} authenticated.`);
 
             setTimeout(() => {
                 socket.disconnect();
-            }, config.SessionTimeout);
+            }, config.SessionTimeout || (20 * 60 * 1000));
         }
     });
 
-    socket.on('message', async (data , ack) =>
+    socket.on('message', async (data, ack) =>
     {
         if (!socket.Authenticated)
         {
@@ -104,7 +115,19 @@ connectionManager.postAuthenticate = async (socket) => {
         }
         else
         {
-            messageReceivedFromBank(socket.Bank,data,ack)
+            var msg = null;
+            try
+            {
+                msg = aesWrapper.decrypt(socket.Key, socket.Iv, data);
+            }
+            catch(err)
+            {
+                logger.warn(`invalid message received from bank '${socket.Bank}'`);
+                socket.emit('unauthorized' , {message : 'NOT_AUTHORIZED'});
+                socket.disconnect();
+                return;
+            }
+            messageReceivedFromBank(socket.Bank, JSON.parse(msg), data, ack)
         }
     });
 
