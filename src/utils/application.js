@@ -1,7 +1,6 @@
 const application = {};
 
 const config = require('config');
-const log4js = require('log4js');
 const host = require('os').hostname();
 const logger = require('./logger')();
 const server = require('./../server');
@@ -26,9 +25,7 @@ application.shutdown = () => {
     }
 
     setTimeout(() => {
-        log4js.shutdown( ()=> {
-            process.exit(0);
-        });
+        process.exit(0);
     }, config.ShutdownTimeout || 3000);
 }
 

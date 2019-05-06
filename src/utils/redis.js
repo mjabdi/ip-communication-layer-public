@@ -13,7 +13,8 @@ function getClient()
     {
         _client = redis.createClient(config.RedisPort,{
             host: config.RedisHost,  
-            password: config.RedisPass
+            password: config.RedisPass,
+            
           });
     }
     return _client;

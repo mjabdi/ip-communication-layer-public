@@ -17,6 +17,7 @@ httpServer.start = async () =>
     server = Fastify({
         ignoreTrailingSlash: true,
         genReqId: createRequestId,
+        logger: logger
     });
 
     //** add routes */
