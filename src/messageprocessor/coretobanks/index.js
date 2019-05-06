@@ -1,8 +1,22 @@
 const logger = require('./../../utils/logger')();
 const publisher = require('./../../websocket/publisher');
+const redis = require('./../../utils/redis');
 
 const messageReceivedFromCore = (bank, msg) => 
 {
+
+    var d = new Date();
+
+    redis.client()
+    .incr(`bank_outgoing_messages:${bank}:${d.getSeconds()}`, (err,id) =>
+    {
+        if (id === 1)
+        {
+            redis.client()
+            .expire(`bank_outgoing_messages:${bank}:${d.getSeconds()}`, 5);
+        }
+    });
+
     publisher.sendMessage(bank, {payload: msg});
 }
 
