@@ -12,7 +12,7 @@ let ready = false;
 async function run()
 {
   //** Gobal Error Handling */
-  //application.registerGlobalErrorHandler();
+  application.registerGlobalErrorHandler();
   //** */
 
   //** checking for required configs */
