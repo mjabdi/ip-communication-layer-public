@@ -2,54 +2,39 @@ const publisher = {};
 
 const logger = require('./../utils/logger')();
 const aesWrapper = require('./../utils/aes-wrapper');
-const coreProxy = require('./coreproxy');
-const bankConnections = require('./bankconnections');
+const redis = require('./../utils/redis');
 
-publisher.sendMessage = (bank, msg) =>
+const io = require('socket.io-emitter')(redis.client());
+
+publisher.sendMessage = async (bank, msg) =>
 {
-    var message = JSON.parse(msg);
-    if (!bankConnections.bankConnected(bank))
+    var conn = await redis.client().getAsync(`banks:${bank}`);
+    if (conn != null)
     {
-        //** do nothing, core-proxy will send it agian itself */
-        // setTimeout(() => {
-        //     coreProxy.sendBackMessage(bank, message.msg, message.id);   
-        // }, 1000);
-    }
-    else 
+        const msg_enc = aesWrapper.encrypt(JSON.parse(conn).key, JSON.parse(conn).iv, JSON.stringify(msg));
+        var socket_id = JSON.parse(conn).id;
+        io.to(socket_id).emit('message' , msg_enc);
+        logger.info(`sending ${JSON.stringify(msg)} to ${bank}`);
+    }else
     {
-        try
-        {
-            var msg_enc = aesWrapper.encrypt(bankConnections.getBank(bank).Key, bankConnections.getBank(bank).Iv, message.msg);
-            bankConnections.getBank(bank).sendUTF(JSON.stringify({type:'message' , id : message.id, msg : msg_enc}));
-            logger.info(`msg : '${msg}' sent to bank : '${bank}'`);
-        }catch(err)
-        {
-            //** do nothing, core-proxy will send it agian itself */
-            // logger.error(err);
-            // setTimeout(() => {
-            //     coreProxy.sendBackMessage(bank, message.msg , message.id);
-            // }, 1000);    
-        }
+        var count = 0;
+        var timer = setInterval(async () => { 
+            count++; 
+            conn = await redis.client().getAsync(`banks:${bank}`);
+            if (conn != null)
+            {
+                const msg_enc = aesWrapper.encrypt(JSON.parse(conn).key, JSON.parse(conn).iv, JSON.stringify(msg));
+                socket_id = JSON.parse(conn).id;
+                io.to(socket_id).emit('message' , msg_enc);
+                logger.info(`sending ${JSON.stringify(msg)} to ${bank}`);
+                clearInterval(timer); 
+            }
+            else if (count > 5) { 
+                clearInterval(timer); 
+                logger.error(`could not send ${JSON.stringify(msg)} to ${bank}`);
+            } 
+        }, 2000);  
     }
 }
-
-publisher.sendAcktoBank = (bank , ack) =>
-{
-    try
-    {
-        bankConnections.getBank(bank).sendUTF(JSON.stringify({type:'ack' , payload : ack}));
-    }catch(err) {}
-}
-
-// publisher.sendMessageToAll = (msg) =>
-// {
-//     _socketConnections.values().forEach( (conn) =>
-//     {
-//         var msg_enc = aesWrapper.encrypt(conn.Key, conn.Iv, msg);
-//         conn.sendUTF(msg_enc);
-//     });
-//     logger.info(`msg : '${msg}' sent to all banks`);
-// }
-
 
 module.exports = publisher;

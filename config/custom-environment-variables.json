@@ -7,5 +7,8 @@
   "SessionTimeout" : "SESSION_TIMEOUT",
   "ShutdownTimeout" : "SHUTDOWN_TIMEOUT",
   "CoreProxyNodes" : "CORE_PROXY_NODES",
-  "CoreProxyAddress" : "CORE_PROXY_ADDRESS"
+  "CoreProxyAddress" : "CORE_PROXY_ADDRESS",
+  "RedisHost" : "REDIS_HOST",
+  "RedisPort" : "REDIS_PORT",
+  "RedisPass" : "REDIS_PASS"
 }

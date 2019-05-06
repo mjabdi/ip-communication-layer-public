@@ -3,9 +3,12 @@
   "IPCoreRestAPI": "http://localhost:3002/api/sendtocore",
   "HttpPort" : 3001,
   "WebsocketPort" : 8001,
-  "HandshakeTimeout" : 30000,
+  "HandshakeTimeout" : 5000,
   "SessionTimeout" : 5000,
   "ShutdownTimeout" : 5000,
   "CoreProxyNodes" : 1,
-  "CoreProxyAddress" : "ws://localhost:8000"
+  "CoreProxyAddress" : "ws://localhost:8000",
+  "RedisHost" : "localhost",
+  "RedisPort" : 6379,
+  "RedisPass" : "password"
 }

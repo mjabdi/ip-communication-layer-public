@@ -1,44 +1,40 @@
 const WSSModule = {};
-
 const config = require('config');
 const logger = require('./../utils/logger')();
 const http = require('http');
-const WebSocketServer = require('websocket').server;
-const handleRequest = require('./requesthandler').handleRequest;
+const io = require('socket.io')();
+const socketAuth = require('socketio-auth');
+const redisAdapter = require('socket.io-redis');
+const connectionManager = require('./connectionmanager');
+const redis = require('./../utils/redis');
 
 WSSModule.start = () => {
-    const wsPort = config.WebsocketPort || 8080;
+    const wsPort = config.WebsocketPort;
     const websocketServer = http.createServer((request, response) => {
         logger.info(`Received request for ${request.url}`);
         response.writeHead(404);
         response.end();
     });
 
-    WSSModule.server = websocketServer;
+    const pub = redis.newClient();
+    const sub = redis.newClient();
 
-    websocketServer.listen(wsPort, () => {
-        logger.info(`WebSocket server is listening on ws://localhost:${wsPort}`);
-        console.log(`WebSocket server is listening on ws://localhost:${wsPort}`);
+    io.attach(websocketServer);
+    io.adapter(redisAdapter({ pubClient: pub, subClient: sub }));
 
+    socketAuth(io, connectionManager);
+      
+    websocketServer.listen(wsPort , () =>
+    {
+      logger.info(`WebSocket server started listening on port : ${wsPort}`);
+      console.log(`WebSocket server started listening on port : ${wsPort}`);
     });
-
-    const wsServer = new WebSocketServer({
-        httpServer: websocketServer,
-        autoAcceptConnections: false,
-        keepalive: true,
-        closeTimeout: 100
-    });
-
-    WSSModule.wsServer = wsServer;
-
-    wsServer.on('request', handleRequest);
 }
 
 WSSModule.close = (callback) => {
-    WSSModule.wsServer.closeAllConnections();
-    WSSModule.wsServer.shutDown();
-    WSSModule.server.close(callback);
+    io.close(callback);
 }
+
 
 
 module.exports = WSSModule;

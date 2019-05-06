@@ -1,11 +1,13 @@
-const express = require('express');
+const routes = {};
 const health = require('../routes/health');
 const index = require('../routes/index');
+const receiveformcore = require('../routes/receivefromcore');
 
-module.exports = (app) => {
-  app.use(express.json());
-  app.use('/health', health);
-  app.use('/' , index );
-  //.. add other routes here
-  //..
+routes.setupRoutes = (server) => {
+ server.get('/', index);
+ server.get('/health/ready', health.ready);
+ server.get('/health/live', health.live);
+ server.post('/api/sendtobank', receiveformcore);
 }
+
+module.exports = routes;

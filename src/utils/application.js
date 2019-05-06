@@ -4,10 +4,12 @@ const config = require('config');
 const log4js = require('log4js');
 const host = require('os').hostname();
 const logger = require('./logger')();
+const server = require('./../server');
 
 application.shutdown = () => {
     logger.info('application is shutting down...');
 
+    server.ready = false;
     //**  do anything you need before exiting the application here */
     if (application.httpServer) {
         logger.info('closing the http server...');
@@ -22,7 +24,6 @@ application.shutdown = () => {
             logger.info('websocket server closed.');
         });
     }
-
 
     setTimeout(() => {
         log4js.shutdown( ()=> {

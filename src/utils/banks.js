@@ -11,8 +11,8 @@ banks.init = () =>
         logger.warn('trying to call banks.init() again!');
         return;
     }
-    _banks.put('MELI' , {name : '' , cert : null});
-    _banks.put('BSIR' , {name : '' , cert : null});
+    _banks.put('MELI' , {name : 'MELI Bank' , cert : null});
+    _banks.put('BSIR' , {name : 'SADERAT Bank' , cert : null});
 }
 
 banks.getAllBanks = () =>
