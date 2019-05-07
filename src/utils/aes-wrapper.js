@@ -45,7 +45,7 @@ aesWrapper.decrypt = (key, iv , text) => {
     catch(err)
     {
         logger.error(`AES decryption failed! : ${err}`);
-        return 'null';
+        throw err;
     }
 };
 
