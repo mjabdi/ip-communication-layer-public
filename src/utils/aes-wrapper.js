@@ -35,6 +35,7 @@ aesWrapper.encrypt = (key, iv, text) => {
 aesWrapper.decrypt = (key, iv , text) => {
     try
     {
+        logger.warn({key,iv,text});
         let dec = '';
         let cipher = crypto.createDecipheriv('aes-256-cbc', key,  iv);
         dec += cipher.update(Buffer.from(text, 'base64'), 'base64', 'utf8');
