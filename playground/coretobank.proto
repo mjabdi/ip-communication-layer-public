@@ -1,0 +1,16 @@
+syntax="proto3";
+
+package coretobank;
+
+service CoreToBank {
+  rpc SendMessage (RequestMessage) returns (ResponseMessage) {}
+}
+
+message RequestMessage {
+  string bank = 1;
+  string payload = 2;
+}
+
+message ResponseMessage {
+  string refcode = 1;
+}

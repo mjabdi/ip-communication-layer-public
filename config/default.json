@@ -1,5 +1,5 @@
 {
-  "LogLevel" : "warn",
+  "LogLevel" : "info",
   "IPCoreRestAPI": "http://localhost:3002/api/sendtocore",
   "HttpPort" : 3001,
   "WebsocketPort" : 8001,
