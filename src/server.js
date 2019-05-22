@@ -6,6 +6,7 @@ const banks = require('./utils/banks');
 const rsaWrapper = require('./utils/rsa-wrapper');
 const application = require('./utils/application');
 const httpServer = require('./startup/httpserver');
+const grpcServer = require('./grpc/grpcserver');
 
 let ready = false;
 
@@ -32,6 +33,8 @@ async function run()
   //** initialize HTTP server on port : ${HttpPort} */
   await httpServer.start();
   //** end of HTTP server initialization */
+
+  grpcServer.start();
 
   //** initialaize WebSocket server on port : ${WebsocketPort} */
   websocketServer.start();

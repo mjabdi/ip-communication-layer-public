@@ -1,10 +1,10 @@
 {
-  "LogLevel" : "info",
+  "LogLevel" : "warn",
   "IPCoreRestAPI": "http://localhost:3002/api/sendtocore",
   "HttpPort" : 3001,
   "WebsocketPort" : 8001,
   "HandshakeTimeout" : 5000,
-  "SessionTimeout" : 100000,
+  "SessionTimeout" : 10000,
   "ShutdownTimeout" : 5000,
   "CoreProxyNodes" : 1,
   "CoreProxyAddress" : "ws://localhost:8000",

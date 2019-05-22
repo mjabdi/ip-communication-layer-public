@@ -2,6 +2,7 @@ const logger = require('./../../utils/logger')();
 const config = require('config');
 const request = require('requestretry');
 const redis = require('./../../utils/redis');
+const grpcClient = require('./../../grpc/grpcclient');
 
 const messageReceivedFromBank = (bank, msg, data, ack) =>
 {
@@ -19,7 +20,10 @@ const messageReceivedFromBank = (bank, msg, data, ack) =>
         }
     });
 
-    request({
+    grpcClient.sendToCore(bank, msg.receiver, msg.payload);
+    ack(data);
+
+   /* request({
         url: config.IPCoreRestAPI,
         json: true,
         method : 'POST',
@@ -44,7 +48,7 @@ const messageReceivedFromBank = (bank, msg, data, ack) =>
                 logger.warn('The number of request attempts: ' + response.attempts);
             }
         }
-    });
+    });*/
 }
 
 module.exports = {
