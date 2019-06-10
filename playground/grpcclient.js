@@ -20,6 +20,8 @@ grpcClient.sendToCore = (message, type, senderBic, refId) => {
     client.processMessage({ message, type, senderBic, refId }, (err, result) => {
       if(!err)
         logger.info({result});
+      else
+        logger.error(err);  
     });
 }
 
