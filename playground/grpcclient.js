@@ -5,7 +5,7 @@ const logger = require('./../src/utils/logger')();
 grpcClient.sendToCore = (message, type, senderBic, refId) => {
     const client = createClient({
       protoPath: __dirname + '/banktocore.proto',
-      packageName: 'com.isc.npsd.instantpayment.grpc',
+      packageName: 'banktocore',
       serviceName: 'IPCoreService',
       options: {
         keepCase: true,
