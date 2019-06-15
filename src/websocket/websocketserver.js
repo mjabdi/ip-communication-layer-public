@@ -35,6 +35,4 @@ WSSModule.close = (callback) => {
     io.close(callback);
 }
 
-
-
 module.exports = WSSModule;

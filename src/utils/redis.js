@@ -28,5 +28,4 @@ function getNewClient()
       });
 }
 
-
 module.exports = { client : getClient , newClient : getNewClient};

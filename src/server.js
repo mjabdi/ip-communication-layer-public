@@ -41,7 +41,7 @@ async function run()
   //** end of WebSocket server initialization */
 
   //** doing all the neccessary things and cleanup procedures before shutdown  */
-  application.registerForGracefulShutdown(httpServer,websocketServer);
+  application.registerForGracefulShutdown(httpServer,websocketServer, grpcServer);
   //** */
 
   ready = true;
@@ -50,4 +50,4 @@ async function run()
 run();
 
 module.exports.ready = () => {return ready};
-module.exports.live = () => {return true};
+module.exports.live = () => {return ready};

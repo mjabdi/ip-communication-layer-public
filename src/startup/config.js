@@ -12,7 +12,9 @@ module.exports = () => {
         'CoreProxyAddress',
         'RedisHost',
         'RedisPort',
-        'RedisPass'
+        'RedisPass',
+        'GRPCEndpoint',
+        'GRPCListenPort'
     ];
 
     let error = false;

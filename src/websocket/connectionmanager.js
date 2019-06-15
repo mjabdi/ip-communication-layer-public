@@ -130,8 +130,6 @@ connectionManager.postAuthenticate = async (socket) => {
             messageReceivedFromBank(socket.Bank, JSON.parse(msg), data, ack)
         }
     });
-
-
 }
 
 connectionManager.disconnect = async (socket) => {

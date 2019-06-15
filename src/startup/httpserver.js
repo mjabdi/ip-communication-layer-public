@@ -2,7 +2,6 @@ const httpServer = {};
 
 const config = require('config');
 const Fastify = require('fastify');
-const uuidv4 = require('uuid/v4');
 const routes = require('./routes');
 const logger = require('./../utils/logger')();
 const application = require('./../utils/application');
@@ -11,13 +10,8 @@ let server = null;
 
 httpServer.start = async () =>
 {
-
-    const createRequestId = () => uuidv4();
-
     server = Fastify({
-        ignoreTrailingSlash: true,
-        genReqId: createRequestId,
-        logger: logger
+        ignoreTrailingSlash: true
     });
 
     //** add routes */
@@ -27,8 +21,7 @@ httpServer.start = async () =>
     try {
         await server.listen(config.HttpPort,'0.0.0.0');
         httpServer.started = true;
-        logger.info(`server listening on localhost:${config.HttpPort}`);
-        console.log(`server listening on localhost:${config.HttpPort}`);
+        logger.info(`Http server listening on port:${config.HttpPort}`);
       } catch (err) {
         logger.error(err);
         application.shutdown();

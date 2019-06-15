@@ -10,5 +10,7 @@
   "CoreProxyAddress" : "CORE_PROXY_ADDRESS",
   "RedisHost" : "REDIS_HOST",
   "RedisPort" : "REDIS_PORT",
-  "RedisPass" : "REDIS_PASS"
+  "RedisPass" : "REDIS_PASS",
+  "GRPCEndpoint" : "GRPC_ENDPOINT",
+  "GRPCListenPort" : "GRPC_LISTEN_PORT"
 }

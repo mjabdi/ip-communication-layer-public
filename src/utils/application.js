@@ -24,6 +24,15 @@ application.shutdown = () => {
         });
     }
 
+    if (application.grpcServer)
+    {
+        logger.info('closing the grpc server...');
+        application.grpcServer.close(() => {
+            logger.info('grpc server closed.');
+        }); 
+    }
+
+
     setTimeout(() => {
         process.exit(0);
     }, config.ShutdownTimeout || 3000);
@@ -33,9 +42,10 @@ application.hostname = () => {
     return host;
 }
 
-application.registerForGracefulShutdown = (httpServer, websocketServer) => {
+application.registerForGracefulShutdown = (httpServer, websocketServer, grpcServer) => {
     application.httpServer = httpServer;
     application.websocketServer = websocketServer;
+    application.grpcServer = grpcServer;
 
     process.on('SIGTERM', () => {
         if (!application.exitSignalReceived) {
@@ -79,7 +89,7 @@ application.registerGlobalErrorHandler = () =>
         if (!application.exitSignalReceived)
         {
             application.exitSignalReceived = true;
-            logger.fatal(`Unhandled Promise Rejection occured : ${err}`);
+            logger.fatal(`Unhandled Promise Rejection occured : ${err.stack}`);
             application.shutdown();
         }
         else

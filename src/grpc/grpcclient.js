@@ -1,13 +1,14 @@
 const grpcClient = {};
 const {createClient} = require("grpc-kit");
+const config = require('config');
+const logger = require('./../utils/logger')();
 
-
-grpcClient.sendToCore = (sender, receiver, payload) => {
-   
+grpcClient.sendToCore = (sender, receiver, payload, ack, data) => {
+     
     const client = createClient({
         protoPath: __dirname + '/banktocore.proto',
         packageName: 'banktocore',
-        serviceName: 'BankToCore',
+        serviceName: 'IPCoreService',
         options: {
           keepCase: true,
           longs: String,
@@ -16,11 +17,18 @@ grpcClient.sendToCore = (sender, receiver, payload) => {
           oneofs: true
         }
       }
-      , 'localhost:50052');
-      
-      client.SendMessage({ sender, receiver, payload }, (err, result) => {
-        if(err) throw err;
-        // console.log(result);
+      , config.GRPCEndpoint);
+
+      client.processMessage({ message: payload, type: 'message', senderBic: sender, refId:1 }, (err, result) => {
+        if(!err) 
+        {
+          ack(data);
+        }
+        else
+        {
+          logger.fatal(`gRPC server unavailable : ${err}`);
+          throw err;
+        }
       });
 }
 

@@ -4,11 +4,13 @@
   "HttpPort" : 3001,
   "WebsocketPort" : 8001,
   "HandshakeTimeout" : 5000,
-  "SessionTimeout" : 10000,
+  "SessionTimeout" : 100000,
   "ShutdownTimeout" : 5000,
   "CoreProxyNodes" : 1,
   "CoreProxyAddress" : "ws://localhost:8000",
   "RedisHost" : "localhost",
   "RedisPort" : 6379,
-  "RedisPass" : "password"
+  "RedisPass" : "password",
+  "GRPCEndpoint" : "localhost:50052",
+  "GRPCListenPort" : 50051
 }

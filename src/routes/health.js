@@ -1,7 +1,5 @@
 const health = {};
-
 const server = require('./../server');
-
 
 health.ready = async (req, res) => {
   if (server.ready())
