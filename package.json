@@ -14,7 +14,9 @@
     "debug": "node --inspect=0.0.0.0:9229 $npm_package_config_entrypoint",
     "test": "nyc mocha --exit",
     "dev": "nodemon $npm_package_config_entrypoint",
-    "start-grpc-test" : "node playground/test-grpc.js | pino-pretty"
+    "start-grpc-test": "node playground/test-grpc.js | pino-pretty",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "nodemonConfig": {
     "env": {
@@ -42,7 +44,8 @@
     "socket.io-emitter": "^3.1.1",
     "socket.io-redis": "^5.2.0",
     "socketio-auth": "^0.1.1",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -52,5 +55,6 @@
     "nyc": "^14.1.0",
     "prompt-confirm": "^1.2.0",
     "request": "^2.82.0"
-  }
+  },
+  "snyk": true
 }
