@@ -27,7 +27,7 @@
     "body-parser": "^1.18.3",
     "config": "^3.0.1",
     "crypto": "^1.0.1",
-    "fastify": "^2.3.0",
+    "fastify": "^2.15.1",
     "grpc": "^1.20.3",
     "grpc-kit": "^0.2.0",
     "node-rsa": "^1.0.5",
