@@ -38,7 +38,7 @@
     "redis": "^2.8.0",
     "requestretry": "^4.0.0",
     "simple-hashtable": "^1.0.0",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.4.0",
     "socket.io-emitter": "^3.1.1",
     "socket.io-redis": "^5.2.0",
     "socketio-auth": "^0.1.1",
