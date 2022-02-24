@@ -36,7 +36,7 @@
     "pino-redis": "^1.0.3",
     "randomstring": "^1.1.5",
     "redis": "^2.8.0",
-    "requestretry": "^4.0.0",
+    "requestretry": "^7.0.0",
     "simple-hashtable": "^1.0.0",
     "socket.io": "^2.2.0",
     "socket.io-emitter": "^3.1.1",
